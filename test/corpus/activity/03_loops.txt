@@ -17,7 +17,7 @@ repeat while (More data?) is (yes)
             label: (activity_label
               (text_line))))
         condition: (condition_expression)
-        label: (text_line)))
+        label: (branch_label)))
     (enduml_directive)))
 
 ===========================
@@ -34,13 +34,13 @@ repeat while (Has more?) is (yes)
     (startuml_directive)
     (activity_element
       (repeat_while
-        repeat_label: (text_line)
+        repeat_label: (branch_label)
         (activity_element
           (activity_node
             label: (activity_label
               (text_line))))
         condition: (condition_expression)
-        label: (text_line)))
+        label: (branch_label)))
     (enduml_directive)))
 
 ===========================
@@ -58,12 +58,12 @@ endwhile (no)
     (activity_element
       (while_loop
         condition: (condition_expression)
-        label: (text_line)
+        label: (branch_label)
         (activity_element
           (activity_node
             label: (activity_label
               (text_line))))
-        end_label: (text_line)))
+        end_label: (branch_label)))
     (enduml_directive)))
 
 ===========================
@@ -81,7 +81,7 @@ endwhile
     (activity_element
       (while_loop
         condition: (condition_expression)
-        label: (text_line)
+        label: (branch_label)
         (activity_element
           (activity_node
             label: (activity_label
@@ -105,13 +105,14 @@ endwhile
     (activity_element
       (while_loop
         condition: (condition_expression)
-        label: (text_line)
+        label: (branch_label)
         (activity_element
           (while_loop
             condition: (condition_expression)
-            label: (text_line)
+            label: (branch_label)
             (activity_element
               (activity_node
                 label: (activity_label
                   (text_line))))))))
     (enduml_directive)))
+

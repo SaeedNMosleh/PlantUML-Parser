@@ -110,7 +110,7 @@ module.exports = grammar({
       ')',
       optional('is'),
       'then',
-      optional(seq('(', field('true_label', $.text_line), ')')),
+      optional(seq('(', field('true_label', $.branch_label), ')')),
       repeat($._diagram_element),
       repeat($.elseif_branch),
       optional($.else_branch),
@@ -124,13 +124,13 @@ module.exports = grammar({
       ')',
       optional('is'),
       'then',
-      optional(seq('(', field('label', $.text_line), ')')),
+      optional(seq('(', field('label', $.branch_label), ')')),
       repeat($._diagram_element)
     ),
 
     else_branch: $ => seq(
       'else',
-      optional(seq('(', field('label', $.text_line), ')')),
+      optional(seq('(', field('label', $.branch_label), ')')),
       repeat($._diagram_element)
     ),
 
@@ -197,8 +197,7 @@ module.exports = grammar({
       '(',
       field('condition', $.condition_expression),
       ')',
-      optional('is'),
-      optional(seq('(', field('label', $.text_line), ')')),
+      optional(seq('is', '(', field('label', $.branch_label), ')')),
       optional(seq(choice('->', '-->'), optional($.arrow_label)))
     ),
 
@@ -208,11 +207,10 @@ module.exports = grammar({
       '(',
       field('condition', $.condition_expression),
       ')',
-      optional('is'),
-      optional(seq('(', field('label', $.text_line), ')')),
+      optional(seq('is', '(', field('label', $.branch_label), ')')),
       repeat($._diagram_element),
       'endwhile',
-      optional(seq('(', field('end_label', $.text_line), ')'))
+      optional(seq('(', field('end_label', $.branch_label), ')'))
     )),
 
     // Detach
@@ -260,7 +258,7 @@ module.exports = grammar({
     skinparam_directive: $ => seq(
       'skinparam',
       field('parameter', $.identifier),
-      field('value', choice($.identifier, $.color, $.number, $.string))
+      field('value', $.text_line)
     ),
 
     // ===========================
@@ -299,6 +297,8 @@ module.exports = grammar({
     ),
 
     text_line: $ => /[^\n;]+/,
+
+    branch_label: $ => token(/[^)\n]+/),
 
     number: $ => /\d+/,
 
