@@ -19,9 +19,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Install tree-sitter CLI
         run: npm install tree-sitter-cli --save-dev
