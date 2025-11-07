@@ -1,4 +1,4 @@
-#include <napi.h>
+#include "napi.h"
 
 typedef struct TSLanguage TSLanguage;
 
@@ -8,8 +8,7 @@ namespace {
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports["name"] = Napi::String::New(env, "plantuml");
-  auto language = reinterpret_cast<Napi::External<TSLanguage>::Finalizer>(tree_sitter_plantuml);
-  exports["language"] = Napi::External<TSLanguage>::New(env, tree_sitter_plantuml(), language);
+  exports["language"] = Napi::External<TSLanguage>::New(env, tree_sitter_plantuml());
   return exports;
 }
 
