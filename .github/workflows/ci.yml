@@ -22,13 +22,16 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install tree-sitter CLI
         run: npm install tree-sitter-cli --save-dev
 
       - name: Generate parser
         run: npx tree-sitter generate
+
+      - name: Build native bindings
+        run: npm run build
 
       - name: Run all corpus tests
         run: npx tree-sitter test
