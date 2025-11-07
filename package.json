@@ -21,8 +21,8 @@
     "test": "tree-sitter test",
     "generate": "tree-sitter generate",
     "parse": "tree-sitter parse",
-    "build": "tree-sitter generate && node-gyp rebuild",
-    "install": "node-gyp-build"
+    "build": "node-gyp rebuild",
+    "install": "node-gyp-build || echo 'Skipping build - run npm run generate first'"
   },
   "dependencies": {
     "node-addon-api": "^7.0.0",

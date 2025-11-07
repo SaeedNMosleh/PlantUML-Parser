@@ -29,16 +29,31 @@ jobs:
         run: npm ci
 
       - name: Install tree-sitter CLI
-        run: npm install -g tree-sitter-cli
+        run: |
+          # Try global install, fallback to local
+          npm install -g tree-sitter-cli || npm install --no-save tree-sitter-cli
+
+      - name: Add local node_modules to PATH
+        run: echo "${{ github.workspace }}/node_modules/.bin" >> $GITHUB_PATH
 
       - name: Generate parser
-        run: npm run generate
+        run: |
+          if command -v tree-sitter &> /dev/null; then
+            tree-sitter generate
+          else
+            npx tree-sitter-cli generate
+          fi
 
       - name: Build native bindings
         run: npm run build
 
       - name: Run tests
-        run: npm test
+        run: |
+          if command -v tree-sitter &> /dev/null; then
+            tree-sitter test
+          else
+            npx tree-sitter-cli test
+          fi
 
   lint:
     name: Lint
@@ -57,8 +72,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install tree-sitter CLI
+        run: npm install -g tree-sitter-cli || npm install --no-save tree-sitter-cli
+
       - name: Check grammar syntax
-        run: npm run generate
+        run: |
+          if command -v tree-sitter &> /dev/null; then
+            tree-sitter generate
+          else
+            npx tree-sitter-cli generate
+          fi
 
   examples:
     name: Parse Examples
@@ -78,10 +101,15 @@ jobs:
         run: npm ci
 
       - name: Install tree-sitter CLI
-        run: npm install -g tree-sitter-cli
+        run: npm install -g tree-sitter-cli || npm install --no-save tree-sitter-cli
 
       - name: Generate parser
-        run: npm run generate
+        run: |
+          if command -v tree-sitter &> /dev/null; then
+            tree-sitter generate
+          else
+            npx tree-sitter-cli generate
+          fi
 
       - name: Create example files
         run: |
@@ -102,7 +130,13 @@ jobs:
 
       - name: Parse example files
         run: |
-          tree-sitter parse examples/activity.puml
+          if command -v tree-sitter &> /dev/null; then
+            PARSER_CMD="tree-sitter"
+          else
+            PARSER_CMD="npx tree-sitter-cli"
+          fi
+
+          $PARSER_CMD parse examples/activity.puml
           if [ $? -eq 0 ]; then
             echo "✅ Successfully parsed activity.puml"
           else
