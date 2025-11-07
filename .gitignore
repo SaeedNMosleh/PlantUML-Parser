@@ -1,0 +1,47 @@
+# Tree-sitter generated files
+src/parser.c
+src/grammar.json
+src/node-types.json
+
+# Build artifacts
+build/
+*.node
+*.o
+*.obj
+*.a
+*.lib
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# package-lock.json should be committed for consistency
+yarn.lock
+
+# Dependencies
+.npm
+.node_repl_history
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test artifacts
+.nyc_output/
+coverage/
+
+# Logs
+logs/
+*.log
+
+# Examples (if generated)
+examples/*.svg
+examples/*.png
+
+# OS
+Thumbs.db

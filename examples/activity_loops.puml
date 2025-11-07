@@ -1,0 +1,21 @@
+@startuml
+title Data Processing Loop
+
+start
+
+while (Has more records?) is (yes)
+  :Read next record;
+
+  if (Record valid?) then (yes)
+    :Process record;
+    :Save to database;
+  else (no)
+    :Log error;
+  endif
+
+endwhile (no)
+
+:Generate summary report;
+stop
+
+@enduml

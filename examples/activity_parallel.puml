@@ -1,0 +1,25 @@
+@startuml
+title Parallel Data Processing
+
+start
+:Receive large dataset;
+
+fork
+  :Process batch 1;
+  :Validate batch 1;
+  :Save batch 1;
+fork again
+  :Process batch 2;
+  :Validate batch 2;
+  :Save batch 2;
+fork again
+  :Process batch 3;
+  :Validate batch 3;
+  :Save batch 3;
+end fork
+
+:Merge all results;
+:Generate final report;
+stop
+
+@enduml

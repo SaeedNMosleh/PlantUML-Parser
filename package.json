@@ -1,0 +1,54 @@
+{
+  "name": "tree-sitter-plantuml",
+  "version": "0.1.0",
+  "description": "PlantUML grammar for tree-sitter",
+  "main": "bindings/node",
+  "types": "bindings/node/index.d.ts",
+  "keywords": [
+    "tree-sitter",
+    "plantuml",
+    "parser",
+    "uml",
+    "diagram"
+  ],
+  "author": "PlantUML Parser Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SaeedNMosleh/PlantUML-Parser"
+  },
+  "scripts": {
+    "test": "tree-sitter test",
+    "generate": "tree-sitter generate",
+    "parse": "tree-sitter parse",
+    "build": "node-gyp rebuild",
+    "install": "node-gyp-build || echo 'Skipping build - run npm run generate first'"
+  },
+  "dependencies": {
+    "node-addon-api": "^7.0.0",
+    "node-gyp-build": "^4.6.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.20.8",
+    "node-gyp": "^10.0.0"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.plantuml",
+      "file-types": [
+        "puml",
+        "plantuml",
+        "pu",
+        "uml"
+      ],
+      "injection-regex": "plantuml"
+    }
+  ],
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "src",
+    "queries",
+    "bindings"
+  ]
+}

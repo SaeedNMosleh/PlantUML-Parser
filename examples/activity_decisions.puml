@@ -1,0 +1,23 @@
+@startuml
+title User Authentication Flow
+
+start
+:User enters credentials;
+
+if (Valid credentials?) then (yes)
+  :Load user profile;
+  :Initialize session;
+  :Redirect to dashboard;
+else (no)
+  if (Retry count < 3?) then (yes)
+    :Show error message;
+    :Allow retry;
+  else (no)
+    :Lock account;
+    :Send notification email;
+    stop
+  endif
+endif
+
+stop
+@enduml

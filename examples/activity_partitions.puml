@@ -1,0 +1,28 @@
+@startuml
+title E-commerce Order Processing
+
+|Customer|
+start
+:Browse products;
+:Add to cart;
+:Checkout;
+
+|Payment System|
+partition "Payment Processing" #LightBlue {
+  :Validate payment details;
+  :Process payment;
+  :Generate receipt;
+}
+
+|Warehouse|
+partition "Fulfillment" #LightGreen {
+  :Pick items;
+  :Pack order;
+  :Ship to customer;
+}
+
+|Customer|
+:Receive order;
+stop
+
+@enduml

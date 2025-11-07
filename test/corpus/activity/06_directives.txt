@@ -1,0 +1,139 @@
+===========================
+Title directive
+===========================
+@startuml
+title Simple Activity Diagram
+start
+:Process;
+stop
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (title_directive
+      content: (text_line))
+    (activity_element
+      (start_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (stop_node))
+    (enduml_directive)))
+
+===========================
+Line comments
+===========================
+@startuml
+' This is a comment
+:Step 1;
+' Another comment
+:Step 2;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (comment
+      (line_comment))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (comment
+      (line_comment))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (enduml_directive)))
+
+===========================
+Note directive left
+===========================
+@startuml
+:Step;
+note left: This is a note
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (note_directive
+      (note_line
+        position: (identifier)
+        content: (text_line)))
+    (enduml_directive)))
+
+===========================
+Note directive right
+===========================
+@startuml
+:Step;
+note right: Important information
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (note_directive
+      (note_line
+        position: (identifier)
+        content: (text_line)))
+    (enduml_directive)))
+
+===========================
+Floating note
+===========================
+@startuml
+:Step;
+note left
+  This is a multiline note
+  with multiple lines
+end note
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (note_directive
+      (floating_note
+        position: (identifier)
+        content: (note_content
+          (text_line)
+          (text_line))))
+    (enduml_directive)))
+
+===========================
+Skinparam directive
+===========================
+@startuml
+skinparam backgroundColor LightYellow
+:Process;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (skinparam_directive
+      parameter: (identifier)
+      value: (identifier))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (enduml_directive)))
