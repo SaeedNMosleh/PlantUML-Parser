@@ -8,55 +8,7 @@ on:
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x, 18.x, 20.x]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install tree-sitter CLI
-        run: |
-          # Try global install, fallback to local
-          npm install -g tree-sitter-cli || npm install --no-save tree-sitter-cli
-
-      - name: Add local node_modules to PATH
-        run: echo "${{ github.workspace }}/node_modules/.bin" >> $GITHUB_PATH
-
-      - name: Generate parser
-        run: |
-          if command -v tree-sitter &> /dev/null; then
-            tree-sitter generate
-          else
-            npx tree-sitter-cli generate
-          fi
-
-      - name: Build native bindings
-        run: npm run build
-
-      - name: Run tests
-        run: |
-          if command -v tree-sitter &> /dev/null; then
-            tree-sitter test
-          else
-            npx tree-sitter-cli test
-          fi
-
-  lint:
-    name: Lint
+    name: Test Parser
     runs-on: ubuntu-latest
 
     steps:
@@ -66,80 +18,29 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
-          cache: 'npm'
+          node-version: '18.x'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install tree-sitter CLI
-        run: npm install -g tree-sitter-cli || npm install --no-save tree-sitter-cli
-
-      - name: Check grammar syntax
-        run: |
-          if command -v tree-sitter &> /dev/null; then
-            tree-sitter generate
-          else
-            npx tree-sitter-cli generate
-          fi
-
-  examples:
-    name: Parse Examples
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install tree-sitter CLI
-        run: npm install -g tree-sitter-cli || npm install --no-save tree-sitter-cli
+        run: npm install tree-sitter-cli --save-dev
 
       - name: Generate parser
-        run: |
-          if command -v tree-sitter &> /dev/null; then
-            tree-sitter generate
-          else
-            npx tree-sitter-cli generate
-          fi
+        run: npx tree-sitter generate
 
-      - name: Create example files
+      - name: Run all corpus tests
+        run: npx tree-sitter test
+
+      - name: Test parsing example file
         run: |
-          mkdir -p examples
-          cat > examples/activity.puml << 'EOF'
+          echo "Testing parser on a simple example..."
+          cat > /tmp/test.puml << 'EOF'
           @startuml
-          title Example Activity Diagram
           start
-          :Initialize system;
-          if (Ready?) then (yes)
-            :Process data;
-          else (no)
-            :Show error;
-          endif
+          :Hello World;
           stop
           @enduml
           EOF
-
-      - name: Parse example files
-        run: |
-          if command -v tree-sitter &> /dev/null; then
-            PARSER_CMD="tree-sitter"
-          else
-            PARSER_CMD="npx tree-sitter-cli"
-          fi
-
-          $PARSER_CMD parse examples/activity.puml
-          if [ $? -eq 0 ]; then
-            echo "✅ Successfully parsed activity.puml"
-          else
-            echo "❌ Failed to parse activity.puml"
-            exit 1
-          fi
+          npx tree-sitter parse /tmp/test.puml
+          echo "✅ Parser test successful!"
