@@ -1,0 +1,242 @@
+===========================
+Complete login flow
+===========================
+@startuml
+title User Login Flow
+start
+:User enters credentials;
+if (Valid credentials?) then (yes)
+  :Load user profile;
+  :Initialize session;
+  stop
+else (no)
+  :Show error message;
+  if (Retry attempts < 3?) then (yes)
+    :Allow retry;
+  else (no)
+    :Lock account;
+    stop
+  endif
+endif
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (title_directive
+      content: (text_line))
+    (activity_element
+      (start_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (decision_node
+        condition: (condition_expression)
+        true_label: (text_line)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (stop_node))
+        (else_branch
+          label: (text_line)
+          (activity_element
+            (activity_node
+              label: (activity_label
+                (text_line))))
+          (activity_element
+            (decision_node
+              condition: (condition_expression)
+              true_label: (text_line)
+              (activity_element
+                (activity_node
+                  label: (activity_label
+                    (text_line))))
+              (else_branch
+                label: (text_line)
+                (activity_element
+                  (activity_node
+                    label: (activity_label
+                      (text_line))))
+                (activity_element
+                  (stop_node))))))))
+    (enduml_directive)))
+
+===========================
+Data processing with partitions
+===========================
+@startuml
+partition "Data Ingestion" {
+  :Read file;
+  :Parse content;
+}
+partition "Processing" #LightBlue {
+  :Transform data;
+  :Validate;
+}
+partition "Storage" #LightGreen {
+  :Save to database;
+}
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (partition
+        name: (quoted_identifier)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (activity_element
+      (partition
+        name: (quoted_identifier)
+        (color_spec
+          (color))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (activity_element
+      (partition
+        name: (quoted_identifier)
+        (color_spec
+          (color))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))
+
+===========================
+Parallel processing
+===========================
+@startuml
+start
+fork
+  :Process batch 1;
+  :Validate batch 1;
+fork again
+  :Process batch 2;
+  :Validate batch 2;
+fork again
+  :Process batch 3;
+  :Validate batch 3;
+end fork
+:Merge results;
+stop
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (start_node))
+    (activity_element
+      (fork_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (fork_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (fork_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (join_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (stop_node))
+    (enduml_directive)))
+
+===========================
+Loop with decision
+===========================
+@startuml
+start
+while (Has data?) is (yes)
+  :Read record;
+  if (Valid?) then (yes)
+    :Process;
+  else (no)
+    :Log error;
+  endif
+endwhile (no)
+:Finalize;
+stop
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (start_node))
+    (activity_element
+      (while_loop
+        condition: (condition_expression)
+        label: (text_line)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (decision_node
+            condition: (condition_expression)
+            true_label: (text_line)
+            (activity_element
+              (activity_node
+                label: (activity_label
+                  (text_line))))
+            (else_branch
+              label: (text_line)
+              (activity_element
+                (activity_node
+                  label: (activity_label
+                    (text_line)))))))
+        end_label: (text_line)))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (stop_node))
+    (enduml_directive)))
