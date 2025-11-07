@@ -15,6 +15,14 @@ module.exports = grammar({
     /\s/  // Whitespace
   ],
 
+  conflicts: $ => [
+    [$.start_node, $.stop_node],
+    [$.stop_node, $.join_node],
+    [$.activity_label, $.multiline_text],
+    [$.note_line, $.note_content],
+    [$.repeat_while, $.while_loop]
+  ],
+
   rules: {
     source_file: $ => repeat($._definition),
 
@@ -195,7 +203,7 @@ module.exports = grammar({
     ),
 
     // While loop
-    while_loop: $ => seq(
+    while_loop: $ => prec.left(seq(
       'while',
       '(',
       field('condition', $.condition_expression),
@@ -205,7 +213,7 @@ module.exports = grammar({
       repeat($._diagram_element),
       'endwhile',
       optional(seq('(', field('end_label', $.text_line), ')'))
-    ),
+    )),
 
     // Detach
     detach_statement: $ => 'detach',
