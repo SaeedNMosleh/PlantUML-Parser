@@ -1,0 +1,10 @@
+@startuml
+title Basic Activity Diagram
+
+start
+:Initialize system;
+:Load configuration;
+:Connect to database;
+stop
+
+@enduml
