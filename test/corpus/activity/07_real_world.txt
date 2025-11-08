@@ -34,7 +34,7 @@ endif
     (activity_element
       (decision_node
         condition: (condition_expression)
-        true_label: (text_line)
+        true_label: (branch_label)
         (activity_element
           (activity_node
             label: (activity_label
@@ -46,7 +46,7 @@ endif
         (activity_element
           (stop_node))
         (else_branch
-          label: (text_line)
+          label: (branch_label)
           (activity_element
             (activity_node
               label: (activity_label
@@ -54,13 +54,13 @@ endif
           (activity_element
             (decision_node
               condition: (condition_expression)
-              true_label: (text_line)
+              true_label: (branch_label)
               (activity_element
                 (activity_node
                   label: (activity_label
                     (text_line))))
               (else_branch
-                label: (text_line)
+                label: (branch_label)
                 (activity_element
                   (activity_node
                     label: (activity_label
@@ -213,7 +213,7 @@ stop
     (activity_element
       (while_loop
         condition: (condition_expression)
-        label: (text_line)
+        label: (branch_label)
         (activity_element
           (activity_node
             label: (activity_label
@@ -221,18 +221,18 @@ stop
         (activity_element
           (decision_node
             condition: (condition_expression)
-            true_label: (text_line)
+            true_label: (branch_label)
             (activity_element
               (activity_node
                 label: (activity_label
                   (text_line))))
             (else_branch
-              label: (text_line)
+              label: (branch_label)
               (activity_element
                 (activity_node
                   label: (activity_label
                     (text_line)))))))
-        end_label: (text_line)))
+        end_label: (branch_label)))
     (activity_element
       (activity_node
         label: (activity_label

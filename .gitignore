@@ -45,3 +45,4 @@ examples/*.png
 
 # OS
 Thumbs.db
+.claude

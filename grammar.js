@@ -11,7 +11,6 @@ module.exports = grammar({
   name: 'plantuml',
 
   extras: $ => [
-    $.comment,
     /\s/  // Whitespace
   ],
 
@@ -89,17 +88,17 @@ module.exports = grammar({
     // Start node
     start_node: $ => choice(
       'start',
-      seq('(', '*', ')'),
-      '(*)',
-      '(*top)'
+      '(*top)',
+      prec.dynamic(2, '(*)'),
+      prec.dynamic(2, seq('(', '*', ')'))
     ),
 
     // Stop node
     stop_node: $ => choice(
       'stop',
       'end',
-      seq('(', '*', ')'),
-      '(*)'
+      prec.dynamic(1, '(*)'),
+      prec.dynamic(1, seq('(', '*', ')'))
     ),
 
     // Decision node: if-then-else
@@ -108,7 +107,6 @@ module.exports = grammar({
       '(',
       field('condition', $.condition_expression),
       ')',
-      optional('is'),
       'then',
       optional(seq('(', field('true_label', $.branch_label), ')')),
       repeat($._diagram_element),
@@ -122,7 +120,6 @@ module.exports = grammar({
       '(',
       field('condition', $.condition_expression),
       ')',
-      optional('is'),
       'then',
       optional(seq('(', field('label', $.branch_label), ')')),
       repeat($._diagram_element)
@@ -188,18 +185,21 @@ module.exports = grammar({
     arrow_label: $ => /[^;\n]+/,
 
     // Repeat-while loop
-    repeat_while: $ => seq(
+    repeat_while: $ => prec.left(seq(
       'repeat',
-      optional(seq(':', field('repeat_label', $.text_line))),
+      optional(seq(token.immediate(':'), field('repeat_label', alias(token(/[^\n]+/), $.branch_label)))),
       repeat($._diagram_element),
       'repeat',
       'while',
       '(',
       field('condition', $.condition_expression),
       ')',
-      optional(seq('is', '(', field('label', $.branch_label), ')')),
+      'is',
+      '(',
+      field('label', $.branch_label),
+      ')',
       optional(seq(choice('->', '-->'), optional($.arrow_label)))
-    ),
+    )),
 
     // While loop
     while_loop: $ => prec.left(seq(
@@ -207,10 +207,13 @@ module.exports = grammar({
       '(',
       field('condition', $.condition_expression),
       ')',
-      optional(seq('is', '(', field('label', $.branch_label), ')')),
+      'is',
+      '(',
+      field('label', $.branch_label),
+      ')',
       repeat($._diagram_element),
       'endwhile',
-      optional(seq('(', field('end_label', $.branch_label), ')'))
+      optional(seq(token.immediate('('), field('end_label', $.branch_label), ')'))
     )),
 
     // Detach
@@ -232,33 +235,32 @@ module.exports = grammar({
     ),
 
     note_directive: $ => choice(
-      $.floating_note,
-      $.note_line
+      $.note_line,
+      $.floating_note
     ),
 
-    floating_note: $ => seq(
+    floating_note: $ => prec.right(1, seq(
       'note',
-      field('position', choice('left', 'right', 'top', 'bottom')),
+      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
       optional(seq('of', field('target', $.identifier))),
       optional(':'),
       field('content', $.note_content),
-      'end',
-      'note'
-    ),
+      seq('end', 'note')
+    )),
 
     note_line: $ => seq(
       'note',
-      field('position', choice('left', 'right')),
+      field('position', alias(choice('left', 'right'), $.identifier)),
       optional(':'),
       field('content', $.text_line)
     ),
 
-    note_content: $ => repeat1($.text_line),
+    note_content: $ => prec.left(repeat1($.text_line)),
 
     skinparam_directive: $ => seq(
       'skinparam',
       field('parameter', $.identifier),
-      field('value', $.text_line)
+      field('value', $.identifier)
     ),
 
     // ===========================
@@ -298,7 +300,7 @@ module.exports = grammar({
 
     text_line: $ => /[^\n;]+/,
 
-    branch_label: $ => token(/[^)\n]+/),
+    branch_label: $ => /[^)\n]+/,
 
     number: $ => /\d+/,
 
