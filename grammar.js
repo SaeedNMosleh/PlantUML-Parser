@@ -253,14 +253,7 @@ module.exports = grammar({
       field('content', $.text_line)
     ),
 
-    floating_note: $ => seq(
-      'note',
-      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
-      optional(seq('of', field('target', $.identifier))),
-      repeat1($.note_content_line),
-      'end',
-      'note'
-    ),
+    note_content: $ => prec.left(repeat1($.text_line)),
 
     skinparam_directive: $ => seq(
       'skinparam',
