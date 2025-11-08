@@ -200,7 +200,7 @@ while (Has data?) is (yes)
   else (no)
     :Log error;
   endif
-endwhile <ENDLABEL>(no)
+endwhile (no)
 :Finalize;
 stop
 @enduml

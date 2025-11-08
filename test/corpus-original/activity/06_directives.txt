@@ -1,74 +1,8 @@
 ===========================
-Simple activity node
+Title directive
 ===========================
 @startuml
-:Hello World;
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (enduml_directive)))
-
-===========================
-Multiple activity nodes
-===========================
-@startuml
-:Step 1;
-:Step 2;
-:Step 3;
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (enduml_directive)))
-
-===========================
-Activity node with flow arrow
-===========================
-@startuml
-:Step 1;
--> Next step;
-:Step 2;
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (flow_arrow
-        label: (arrow_label)))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (enduml_directive)))
-
-===========================
-Start and stop nodes
-===========================
-@startuml
+title Simple Activity Diagram
 start
 :Process;
 stop
@@ -77,6 +11,8 @@ stop
 (source_file
   (diagram
     (startuml_directive)
+    (title_directive
+      content: (text_line))
     (activity_element
       (start_node))
     (activity_element
@@ -88,61 +24,115 @@ stop
     (enduml_directive)))
 
 ===========================
-Start and end with parentheses
+Line comments
 ===========================
 @startuml
-<START>(*)
-:Process;
-<STOP>(*)
+' This is a comment
+:Step 1;
+' Another comment
+:Step 2;
 @enduml
 ----------------------------
 (source_file
   (diagram
     (startuml_directive)
-    (activity_element
-      (start_node))
+    (comment
+      (line_comment))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
+    (comment
+      (line_comment))
     (activity_element
-      (stop_node))
+      (activity_node
+        label: (activity_label
+          (text_line))))
     (enduml_directive)))
 
 ===========================
-Simple flow with arrows
+Note directive left
 ===========================
 @startuml
-start
-:Initialize;
-->;
-:Process;
-->;
-:Finalize;
-stop
+:Step;
+note left: This is a note
 @enduml
 ----------------------------
 (source_file
   (diagram
     (startuml_directive)
     (activity_element
-      (start_node))
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (note_directive
+      (note_line
+        position: (identifier)
+        content: (text_line)))
+    (enduml_directive)))
+
+===========================
+Note directive right
+===========================
+@startuml
+:Step;
+note right: Important information
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
-    (activity_element
-      (flow_arrow))
+    (note_directive
+      (note_line
+        position: (identifier)
+        content: (text_line)))
+    (enduml_directive)))
+
+===========================
+Floating note
+===========================
+@startuml
+:Step;
+note left
+  This is a multiline note
+  with multiple lines
+end note
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
-    (activity_element
-      (flow_arrow))
+    (note_directive
+      (floating_note
+        position: (identifier)
+        (note_content_line)
+        (note_content_line)))
+    (enduml_directive)))
+
+===========================
+Skinparam directive
+===========================
+@startuml
+skinparam backgroundColor LightYellow
+:Process;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (skinparam_directive
+      parameter: (identifier)
+      value: (identifier))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
-    (activity_element
-      (stop_node))
     (enduml_directive)))

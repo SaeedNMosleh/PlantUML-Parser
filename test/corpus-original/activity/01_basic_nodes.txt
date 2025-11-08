@@ -91,9 +91,9 @@ stop
 Start and end with parentheses
 ===========================
 @startuml
-<START>(*)
+(*)
 :Process;
-<STOP>(*)
+(*)
 @enduml
 ----------------------------
 (source_file

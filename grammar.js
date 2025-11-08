@@ -10,6 +10,11 @@
 module.exports = grammar({
   name: 'plantuml',
 
+  externals: $ => [
+    $.note_content_line,
+    $.error_sentinel
+  ],
+
   extras: $ => [
     /\s/  // Whitespace
   ],
@@ -18,7 +23,6 @@ module.exports = grammar({
     [$.start_node, $.stop_node],
     [$.stop_node, $.join_node],
     [$.activity_label, $.multiline_text],
-    [$.note_line, $.note_content],
     [$.repeat_while, $.while_loop]
   ],
 
@@ -86,19 +90,21 @@ module.exports = grammar({
     ),
 
     // Start node
+    // Note: Preprocessor adds <START> token to disambiguate from stop_node
     start_node: $ => choice(
       'start',
       '(*top)',
-      prec.dynamic(2, '(*)'),
-      prec.dynamic(2, seq('(', '*', ')'))
+      seq('<START>', '(*)'),
+      seq('<START>', '(', '*', ')')
     ),
 
     // Stop node
+    // Note: Preprocessor adds <STOP> token to disambiguate from start_node
     stop_node: $ => choice(
       'stop',
       'end',
-      prec.dynamic(1, '(*)'),
-      prec.dynamic(1, seq('(', '*', ')'))
+      seq('<STOP>', '(*)'),
+      seq('<STOP>', '(', '*', ')')
     ),
 
     // Decision node: if-then-else
@@ -187,7 +193,7 @@ module.exports = grammar({
     // Repeat-while loop
     repeat_while: $ => prec.left(seq(
       'repeat',
-      optional(seq(token.immediate(':'), field('repeat_label', alias(token(/[^\n]+/), $.branch_label)))),
+      optional(field('repeat_label', alias($._repeat_label_content, $.branch_label))),
       repeat($._diagram_element),
       'repeat',
       'while',
@@ -202,6 +208,7 @@ module.exports = grammar({
     )),
 
     // While loop
+    // Note: Preprocessor adds <ENDLABEL> marker for optional end label
     while_loop: $ => prec.left(seq(
       'while',
       '(',
@@ -213,7 +220,7 @@ module.exports = grammar({
       ')',
       repeat($._diagram_element),
       'endwhile',
-      optional(seq(token.immediate('('), field('end_label', $.branch_label), ')'))
+      optional(seq('<ENDLABEL>', '(', field('end_label', $.branch_label), ')'))
     )),
 
     // Detach
@@ -239,23 +246,21 @@ module.exports = grammar({
       $.floating_note
     ),
 
-    floating_note: $ => prec.right(1, seq(
-      'note',
-      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
-      optional(seq('of', field('target', $.identifier))),
-      optional(':'),
-      field('content', $.note_content),
-      seq('end', 'note')
-    )),
-
     note_line: $ => seq(
       'note',
       field('position', alias(choice('left', 'right'), $.identifier)),
-      optional(':'),
+      token.immediate(':'),
       field('content', $.text_line)
     ),
 
-    note_content: $ => prec.left(repeat1($.text_line)),
+    floating_note: $ => seq(
+      'note',
+      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
+      optional(seq('of', field('target', $.identifier))),
+      repeat1($.note_content_line),
+      'end',
+      'note'
+    ),
 
     skinparam_directive: $ => seq(
       'skinparam',
@@ -301,6 +306,10 @@ module.exports = grammar({
     text_line: $ => /[^\n;]+/,
 
     branch_label: $ => /[^)\n]+/,
+
+    // Helper for repeat label - must be on same line as 'repeat'
+    // token.immediate prevents any whitespace before the pattern
+    _repeat_label_content: $ => token.immediate(seq(/[ \t]*/, ':', /[^\n]+/)),
 
     number: $ => /\d+/,
 

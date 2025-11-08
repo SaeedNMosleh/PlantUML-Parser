@@ -1,0 +1,177 @@
+===========================
+Simple partition
+===========================
+@startuml
+partition "Database Operations" {
+  :Query;
+  :Update;
+}
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (partition
+        name: (quoted_identifier)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))
+
+===========================
+Partition with identifier name
+===========================
+@startuml
+partition Backend {
+  :Process;
+}
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (partition
+        name: (identifier)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))
+
+===========================
+Partition with color
+===========================
+@startuml
+partition Backend #LightBlue {
+  :Process;
+}
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (partition
+        name: (identifier)
+        (color_spec
+          (color))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))
+
+===========================
+Multiple partitions
+===========================
+@startuml
+partition Frontend {
+  :Render UI;
+}
+partition Backend {
+  :Process data;
+}
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (partition
+        name: (identifier)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (activity_element
+      (partition
+        name: (identifier)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))
+
+===========================
+Swimlanes
+===========================
+@startuml
+|User|
+:Login;
+|System|
+:Authenticate;
+|Database|
+:Check credentials;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (swimlane
+        name: (swimlane_name)))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (swimlane
+        name: (swimlane_name)))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (swimlane
+        name: (swimlane_name)))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (enduml_directive)))
+
+===========================
+Mixed partitions and swimlanes
+===========================
+@startuml
+partition UserInterface {
+  |User|
+  :Click button;
+}
+partition Backend {
+  |System|
+  :Process request;
+}
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (partition
+        name: (identifier)
+        (activity_element
+          (swimlane
+            name: (swimlane_name)))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (activity_element
+      (partition
+        name: (identifier)
+        (activity_element
+          (swimlane
+            name: (swimlane_name)))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))

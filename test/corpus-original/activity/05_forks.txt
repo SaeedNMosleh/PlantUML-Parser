@@ -1,76 +1,83 @@
 ===========================
-Simple activity node
+Simple fork and join
 ===========================
 @startuml
-:Hello World;
+fork
+  :Task 1;
+fork again
+  :Task 2;
+end fork
 @enduml
 ----------------------------
 (source_file
   (diagram
     (startuml_directive)
     (activity_element
+      (fork_node))
+    (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
+    (activity_element
+      (fork_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (join_node))
     (enduml_directive)))
 
 ===========================
-Multiple activity nodes
+Split and join
 ===========================
 @startuml
-:Step 1;
-:Step 2;
-:Step 3;
+split
+  :Process A;
+split again
+  :Process B;
+split again
+  :Process C;
+end split
 @enduml
 ----------------------------
 (source_file
   (diagram
     (startuml_directive)
     (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
+      (fork_node))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
     (activity_element
+      (fork_node))
+    (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
+    (activity_element
+      (fork_node))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (join_node))
     (enduml_directive)))
 
 ===========================
-Activity node with flow arrow
-===========================
-@startuml
-:Step 1;
--> Next step;
-:Step 2;
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (flow_arrow
-        label: (arrow_label)))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (enduml_directive)))
-
-===========================
-Start and stop nodes
+Fork with multiple activities
 ===========================
 @startuml
 start
-:Process;
+fork
+  :Action 1;
+  :Action 2;
+fork again
+  :Action 3;
+  :Action 4;
+end fork
 stop
 @enduml
 ----------------------------
@@ -80,69 +87,27 @@ stop
     (activity_element
       (start_node))
     (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (stop_node))
-    (enduml_directive)))
-
-===========================
-Start and end with parentheses
-===========================
-@startuml
-<START>(*)
-:Process;
-<STOP>(*)
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (start_node))
+      (fork_node))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
     (activity_element
-      (stop_node))
-    (enduml_directive)))
-
-===========================
-Simple flow with arrows
-===========================
-@startuml
-start
-:Initialize;
-->;
-:Process;
-->;
-:Finalize;
-stop
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
+      (activity_node
+        label: (activity_label
+          (text_line))))
     (activity_element
-      (start_node))
+      (fork_node))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
     (activity_element
-      (flow_arrow))
-    (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
     (activity_element
-      (flow_arrow))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
+      (join_node))
     (activity_element
       (stop_node))
     (enduml_directive)))
