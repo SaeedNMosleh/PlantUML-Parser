@@ -89,16 +89,14 @@ module.exports = grammar({
     start_node: $ => choice(
       'start',
       '(*top)',
-      prec.dynamic(2, '(*)'),
-      prec.dynamic(2, seq('(', '*', ')'))
+      prec.dynamic(1, '(*)')
     ),
 
     // Stop node
     stop_node: $ => choice(
       'stop',
       'end',
-      prec.dynamic(1, '(*)'),
-      prec.dynamic(1, seq('(', '*', ')'))
+      prec.dynamic(2, '(*)')
     ),
 
     // Decision node: if-then-else
@@ -187,7 +185,7 @@ module.exports = grammar({
     // Repeat-while loop
     repeat_while: $ => prec.left(seq(
       'repeat',
-      optional(seq(token.immediate(':'), field('repeat_label', alias(token(/[^\n]+/), $.branch_label)))),
+      optional(seq(':', field('repeat_label', alias(/[^\n;]+/, $.branch_label)))),
       repeat($._diagram_element),
       'repeat',
       'while',
@@ -202,7 +200,7 @@ module.exports = grammar({
     )),
 
     // While loop
-    while_loop: $ => prec.left(seq(
+    while_loop: $ => seq(
       'while',
       '(',
       field('condition', $.condition_expression),
@@ -213,8 +211,8 @@ module.exports = grammar({
       ')',
       repeat($._diagram_element),
       'endwhile',
-      optional(seq(token.immediate('('), field('end_label', $.branch_label), ')'))
-    )),
+      optional(seq('(', field('end_label', $.branch_label), ')'))
+    ),
 
     // Detach
     detach_statement: $ => 'detach',
@@ -239,23 +237,23 @@ module.exports = grammar({
       $.floating_note
     ),
 
-    floating_note: $ => prec.right(1, seq(
-      'note',
-      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
-      optional(seq('of', field('target', $.identifier))),
-      optional(':'),
-      field('content', $.note_content),
-      seq('end', 'note')
-    )),
-
     note_line: $ => seq(
       'note',
       field('position', alias(choice('left', 'right'), $.identifier)),
-      optional(':'),
+      ':',
       field('content', $.text_line)
     ),
 
-    note_content: $ => prec.left(repeat1($.text_line)),
+    floating_note: $ => seq(
+      'note',
+      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
+      optional(seq('of', field('target', $.identifier))),
+      field('content', $.note_content),
+      'end',
+      'note'
+    ),
+
+    note_content: $ => repeat1($.text_line),
 
     skinparam_directive: $ => seq(
       'skinparam',
