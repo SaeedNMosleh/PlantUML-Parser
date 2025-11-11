@@ -11,7 +11,7 @@ module.exports = grammar({
   name: 'plantuml',
 
   externals: $ => [
-    $.note_content_line,
+    // Removed: $.note_content_line - now using preprocessor markers and simple regex
     $.error_sentinel
   ],
 
@@ -258,7 +258,9 @@ module.exports = grammar({
       'note',
       field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
       optional(seq('of', field('target', $.identifier))),
-      repeat($.note_content_line),  // Changed from repeat1 to allow empty notes
+      '<NOTE_CONTENT_BEGIN>',
+      repeat($.note_content_line),
+      '<NOTE_CONTENT_END>',
       'end',
       'note'
     )),
@@ -305,6 +307,10 @@ module.exports = grammar({
     ),
 
     text_line: $ => /[^\n;]+/,
+
+    // Note content line: any line of text (preprocessor ensures boundaries with markers)
+    // This is now a simple regex instead of external token
+    note_content_line: $ => /[^\n]+/,
 
     branch_label: $ => /[^)\n]+/,
 
