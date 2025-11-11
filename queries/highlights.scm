@@ -1,7 +1,8 @@
 ; PlantUML syntax highlighting queries
 
-; Directives
-["@startuml" "@enduml"] @keyword.directive
+; Directives - using node types instead of literal strings
+(startuml_directive) @keyword.directive
+(enduml_directive) @keyword.directive
 
 ; Keywords
 [
@@ -19,12 +20,13 @@
   "fork"
   "again"
   "split"
-  "join"
   "partition"
-  "detach"
   "is"
   "of"
 ] @keyword
+
+; Special statements
+(detach_statement) @keyword
 
 ; Directives
 [
@@ -33,13 +35,8 @@
   "skinparam"
 ] @keyword.directive
 
-; Note positions
-[
-  "left"
-  "right"
-  "top"
-  "bottom"
-] @keyword.modifier
+; Note positions - these are matched as string literals in the grammar
+; They appear as identifiers in the AST, so we don't highlight them separately
 
 ; Operators and punctuation
 [":" ";" "->" "-->" "|"] @operator
@@ -59,19 +56,13 @@
 (arrow_label) @string
 (condition_expression) @string.special
 (swimlane_name) @string
-(note_content (text_line) @string)
+(note_content_line) @string
 
 ; Quoted identifiers
 (quoted_identifier) @string.special
 
 ; Colors
 (color) @constant
-
-; Numbers
-(number) @number
-
-; Strings
-(string) @string
 
 ; Title content
 (title_directive content: (text_line) @markup.heading)
