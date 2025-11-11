@@ -11,8 +11,8 @@ module.exports = grammar({
   name: 'plantuml',
 
   externals: $ => [
-    $.note_content_line,
-    $.error_sentinel
+    // REMOVED: $.note_content_line - using simple token instead
+    // $.error_sentinel - removed as it's not needed
   ],
 
   extras: $ => [
@@ -256,11 +256,15 @@ module.exports = grammar({
     floating_note: $ => seq(
       'note',
       field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
-      optional(seq('of', field('target', $.identifier))),
-      repeat1($.note_content_line),
+      optional(seq('of', $.identifier)),
+      '<NOTE_CONTENT_BEGIN>',
+      repeat(alias($.text_line, $.note_content_line)),
+      '<NOTE_CONTENT_END>',
       'end',
       'note'
     ),
+
+    note_content: $ => prec.left(repeat1($.text_line)),
 
     skinparam_directive: $ => seq(
       'skinparam',
