@@ -100,9 +100,10 @@ module.exports = grammar({
 
     // Stop node
     // Note: Preprocessor adds <STOP> token to disambiguate from start_node
+    // Note: 'end' alone removed to avoid conflict with 'end note', 'end fork', etc.
+    //       Use 'stop' for explicit stop nodes
     stop_node: $ => choice(
       'stop',
-      'end',
       seq('<STOP>', '(*)'),
       seq('<STOP>', '(', '*', ')')
     ),
@@ -242,8 +243,8 @@ module.exports = grammar({
     ),
 
     note_directive: $ => choice(
-      $.note_line,
-      $.floating_note
+      $.floating_note,
+      $.note_line
     ),
 
     note_line: $ => seq(
@@ -253,14 +254,14 @@ module.exports = grammar({
       field('content', $.text_line)
     ),
 
-    floating_note: $ => seq(
+    floating_note: $ => prec(1, seq(
       'note',
       field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
       optional(seq('of', field('target', $.identifier))),
-      repeat1($.note_content_line),
+      repeat($.note_content_line),  // Changed from repeat1 to allow empty notes
       'end',
       'note'
-    ),
+    )),
 
     skinparam_directive: $ => seq(
       'skinparam',

@@ -346,9 +346,16 @@ bool tree_sitter_plantuml_external_scanner_scan(
       return false;
     }
 
-    // Check if we're at a line that might start with "end" (before skipping whitespace)
-    // SAFETY: is_potential_end_keyword only reads lookahead, doesn't advance
-    if (is_potential_end_keyword(lexer)) {
+    // Check for empty line (just newline)
+    if (lexer->lookahead == '\n') {
+      // Empty line - not a content line
+      // SAFETY: We haven't advanced lexer, so returning false is safe
+      return false;
+    }
+
+    // Check if we're at "end note" - only check for 'e' at start of line
+    // followed by 'n', 'd', ' ', 'n', 'o', 't', 'e'
+    if (lexer->lookahead == 'e') {
       // Might be "end note" - don't consume it, let grammar handle it
       // SAFETY: We haven't advanced lexer, so returning false is safe
       return false;
@@ -367,13 +374,6 @@ bool tree_sitter_plantuml_external_scanner_scan(
     if (lexer->lookahead == '<') {
       // This is a preprocessor marker (<NOTE_CONTENT_BEGIN> or <NOTE_CONTENT_END>)
       // Let the grammar handle it
-      // SAFETY: We haven't advanced lexer, so returning false is safe
-      return false;
-    }
-
-    // Check for empty line (just newline)
-    if (lexer->lookahead == '\n') {
-      // Empty line - not a content line
       // SAFETY: We haven't advanced lexer, so returning false is safe
       return false;
     }
