@@ -8,14 +8,14 @@ start
 if (Valid credentials?) then (yes)
   :Load user profile;
   :Initialize session;
-  end
+  stop
 else (no)
   :Show error message;
   if (Retry attempts < 3?) then (yes)
     :Allow retry;
   else (no)
     :Lock account;
-    end
+    stop
   endif
 endif
 @enduml
@@ -140,7 +140,7 @@ fork again
   :Validate batch 3;
 end fork
 :Merge results;
-end
+stop
 @enduml
 ----------------------------
 (source_file
@@ -202,7 +202,7 @@ while (Has data?) is (yes)
   endif
 endwhile (no)
 :Finalize;
-end
+stop
 @enduml
 ----------------------------
 (source_file

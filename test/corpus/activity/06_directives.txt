@@ -5,7 +5,7 @@ Title directive
 title Simple Activity Diagram
 start
 :Process;
-end
+stop
 @enduml
 ----------------------------
 (source_file
@@ -121,7 +121,7 @@ end note
 Skinparam directive
 ===========================
 @startuml
-skinparam activityBackgroundColor #LightYellow
+skinparam backgroundColor LightYellow
 :Process;
 @enduml
 ----------------------------
@@ -130,7 +130,7 @@ skinparam activityBackgroundColor #LightYellow
     (startuml_directive)
     (skinparam_directive
       parameter: (identifier)
-      value: (color))
+      value: (identifier))
     (activity_element
       (activity_node
         label: (activity_label

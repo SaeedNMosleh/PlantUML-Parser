@@ -70,7 +70,7 @@ jobs:
           @startuml
           start
           :Hello World;
-          end
+          stop
           @enduml
           EOF
           npx tree-sitter parse /tmp/test.puml

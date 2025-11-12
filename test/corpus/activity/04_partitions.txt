@@ -28,7 +28,7 @@ partition "Database Operations" {
 Partition with identifier name
 ===========================
 @startuml
-partition "Backend" {
+partition Backend {
   :Process;
 }
 @enduml
@@ -49,7 +49,7 @@ partition "Backend" {
 Partition with color
 ===========================
 @startuml
-partition "Backend" #LightBlue {
+partition Backend #LightBlue {
   :Process;
 }
 @enduml
