@@ -5,7 +5,7 @@ Title directive
 title Simple Activity Diagram
 start
 :Process;
-stop
+end
 @enduml
 ----------------------------
 (source_file
@@ -98,10 +98,8 @@ Floating note
 @startuml
 :Step;
 note left
-<NOTE_CONTENT_BEGIN>
   This is a multiline note
   with multiple lines
-<NOTE_CONTENT_END>
 end note
 @enduml
 ----------------------------
@@ -123,7 +121,7 @@ end note
 Skinparam directive
 ===========================
 @startuml
-skinparam backgroundColor LightYellow
+skinparam activityBackgroundColor #LightYellow
 :Process;
 @enduml
 ----------------------------
@@ -132,7 +130,7 @@ skinparam backgroundColor LightYellow
     (startuml_directive)
     (skinparam_directive
       parameter: (identifier)
-      value: (identifier))
+      value: (color))
     (activity_element
       (activity_node
         label: (activity_label

@@ -49,7 +49,7 @@ While loop
 @startuml
 while (Has items?) is (yes)
   :Process item;
-endwhile <ENDLABEL>(no)
+endwhile (no)
 @enduml
 ----------------------------
 (source_file

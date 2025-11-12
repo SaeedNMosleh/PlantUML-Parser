@@ -71,7 +71,7 @@ Start and stop nodes
 @startuml
 start
 :Process;
-stop
+end
 @enduml
 ----------------------------
 (source_file
@@ -91,9 +91,9 @@ stop
 Start and end with parentheses
 ===========================
 @startuml
-<START>(*)
+(*)
 :Process;
-<STOP>(*)
+(*)
 @enduml
 ----------------------------
 (source_file
@@ -119,7 +119,7 @@ start
 :Process;
 ->;
 :Finalize;
-stop
+end
 @enduml
 ----------------------------
 (source_file
