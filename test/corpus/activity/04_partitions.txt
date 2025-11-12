@@ -141,37 +141,27 @@ Swimlanes
 Mixed partitions and swimlanes
 ===========================
 @startuml
-partition UserInterface {
-  |User|
-  :Click button;
-}
-partition Backend {
-  |System|
-  :Process request;
-}
+|User|
+:Click button;
+|System|
+:Process request;
 @enduml
 ----------------------------
 (source_file
   (diagram
     (startuml_directive)
     (activity_element
-      (partition
-        name: (identifier)
-        (activity_element
-          (swimlane
-            name: (swimlane_name)))
-        (activity_element
-          (activity_node
-            label: (activity_label
-              (text_line))))))
+      (swimlane
+        name: (swimlane_name)))
     (activity_element
-      (partition
-        name: (identifier)
-        (activity_element
-          (swimlane
-            name: (swimlane_name)))
-        (activity_element
-          (activity_node
-            label: (activity_label
-              (text_line))))))
+      (activity_node
+        label: (activity_label
+          (text_line))))
+    (activity_element
+      (swimlane
+        name: (swimlane_name)))
+    (activity_element
+      (activity_node
+        label: (activity_label
+          (text_line))))
     (enduml_directive)))

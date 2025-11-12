@@ -7,6 +7,33 @@ on:
     branches: [ main, develop ]
 
 jobs:
+  validate-plantuml:
+    name: Validate PlantUML Test Cases
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Start PlantUML Server
+        run: |
+          docker run -d -p 8080:8080 --name plantuml plantuml/plantuml-server:latest
+          echo "PlantUML server started on port 8080"
+
+      - name: Validate PlantUML test corpus
+        run: |
+          chmod +x scripts/validate-plantuml.js
+          node scripts/validate-plantuml.js
+
+      - name: Stop PlantUML Server
+        if: always()
+        run: docker stop plantuml || true
+
   test:
     name: Test Parser
     runs-on: ubuntu-latest
