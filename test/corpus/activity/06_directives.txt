@@ -98,10 +98,8 @@ Floating note
 @startuml
 :Step;
 note left
-<NOTE_CONTENT_BEGIN>
   This is a multiline note
   with multiple lines
-<NOTE_CONTENT_END>
 end note
 @enduml
 ----------------------------
