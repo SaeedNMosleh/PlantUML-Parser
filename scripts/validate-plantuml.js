@@ -245,11 +245,12 @@ function checkForErrors(response) {
     }
   }
 
-  // If response is too short, it might be an error
-  if (body.trim().length < 10) {
+  // If response is completely empty (0 chars), that's an error
+  // But short responses (< 10 chars) can be valid for simple diagrams
+  if (body.trim().length === 0) {
     return {
       hasError: true,
-      message: 'Empty or invalid response from PlantUML server',
+      message: 'Empty response from PlantUML server',
     };
   }
 
