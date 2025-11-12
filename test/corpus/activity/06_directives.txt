@@ -98,7 +98,10 @@ Floating note
 @startuml
 :Step;
 note left
-This is a note
+<NOTE_CONTENT_BEGIN>
+  This is a multiline note
+  with multiple lines
+<NOTE_CONTENT_END>
 end note
 @enduml
 ----------------------------
@@ -112,6 +115,7 @@ end note
     (note_directive
       (floating_note
         position: (identifier)
+        (note_content_line)
         (note_content_line)))
     (enduml_directive)))
 
