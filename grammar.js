@@ -221,7 +221,7 @@ module.exports = grammar({
       ')',
       repeat($._diagram_element),
       'endwhile',
-      optional(seq('<ENDLABEL>', '(', field('end_label', $.branch_label), ')'))
+      optional(seq(optional('<ENDLABEL>'), '(', field('end_label', $.branch_label), ')'))
     )),
 
     // Detach
@@ -258,9 +258,9 @@ module.exports = grammar({
       'note',
       field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
       optional(seq('of', field('target', $.identifier))),
-      '<NOTE_CONTENT_BEGIN>',
+      optional('<NOTE_CONTENT_BEGIN>'),
       repeat($.note_content_line),
-      '<NOTE_CONTENT_END>',
+      optional('<NOTE_CONTENT_END>'),
       'end',
       'note'
     )),
