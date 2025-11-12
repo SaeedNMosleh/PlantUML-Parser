@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const zlib = require('zlib');
 
 // PlantUML server configuration
 const PLANTUML_SERVER = process.env.PLANTUML_SERVER || 'http://localhost:8080';
@@ -95,47 +96,73 @@ function readAllTestCases() {
 }
 
 /**
+ * PlantUML encoding function
+ * Uses the same encoding as PlantUML (deflate + custom base64)
+ */
+function encodePlantUML(text) {
+  // PlantUML custom alphabet for encoding
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_';
+
+  // Compress using deflate
+  const compressed = zlib.deflateRawSync(Buffer.from(text, 'utf8'));
+
+  // Encode using PlantUML's base64-like encoding
+  let encoded = '';
+  for (let i = 0; i < compressed.length; i += 3) {
+    const b1 = compressed[i] & 0xFF;
+    const b2 = i + 1 < compressed.length ? compressed[i + 1] & 0xFF : 0;
+    const b3 = i + 2 < compressed.length ? compressed[i + 2] & 0xFF : 0;
+
+    encoded += alphabet[(b1 >> 2) & 0x3F];
+    encoded += alphabet[((b1 & 0x3) << 4) | ((b2 >> 4) & 0xF)];
+    encoded += alphabet[((b2 & 0xF) << 2) | ((b3 >> 6) & 0x3)];
+    encoded += alphabet[b3 & 0x3F];
+  }
+
+  return encoded;
+}
+
+/**
  * Validate PlantUML code against server using txt endpoint
  */
 async function validatePlantUML(code) {
   return new Promise((resolve, reject) => {
-    // Create form data with 'text' parameter
-    const postData = 'text=' + encodeURIComponent(code);
-    const url = `${PLANTUML_SERVER}/txt/`;
-    const urlObj = new URL(url);
+    try {
+      // Encode the PlantUML code
+      const encoded = encodePlantUML(code);
+      const url = `${PLANTUML_SERVER}/txt/${encoded}`;
+      const urlObj = new URL(url);
 
-    const options = {
-      hostname: urlObj.hostname,
-      port: urlObj.port || 8080,
-      path: urlObj.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(postData),
-      },
-    };
+      const options = {
+        hostname: urlObj.hostname,
+        port: urlObj.port || 8080,
+        path: urlObj.pathname,
+        method: 'GET',
+      };
 
-    const req = http.request(options, (res) => {
-      let data = '';
+      const req = http.request(options, (res) => {
+        let data = '';
 
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
 
-      res.on('end', () => {
-        resolve({
-          statusCode: res.statusCode,
-          body: data,
+        res.on('end', () => {
+          resolve({
+            statusCode: res.statusCode,
+            body: data,
+          });
         });
       });
-    });
 
-    req.on('error', (error) => {
+      req.on('error', (error) => {
+        reject(error);
+      });
+
+      req.end();
+    } catch (error) {
       reject(error);
-    });
-
-    req.write(postData);
-    req.end();
+    }
   });
 }
 
