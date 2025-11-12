@@ -99,11 +99,9 @@ function readAllTestCases() {
  */
 async function validatePlantUML(code) {
   return new Promise((resolve, reject) => {
-    // URL encode the PlantUML code
-    const encodedCode = encodeURIComponent(code);
-    const url = `${PLANTUML_SERVER}/plantuml/txt`;
-
-    const postData = encodedCode;
+    // Create form data with 'text' parameter
+    const postData = 'text=' + encodeURIComponent(code);
+    const url = `${PLANTUML_SERVER}/txt/`;
     const urlObj = new URL(url);
 
     const options = {
