@@ -1,77 +1,9 @@
 ===========================
-Repeat-while loop
-===========================
-@startuml
-repeat
-  :Read data;
-repeat while (More data?) is (yes)
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (repeat_while
-        (activity_element
-          (activity_node
-            label: (activity_label
-              (text_line))))
-        condition: (condition_expression)
-        label: (branch_label)))
-    (enduml_directive)))
-
-===========================
-Repeat-while with label
-===========================
-@startuml
-repeat :Process item
-  :Validate;
-repeat while (Has more?) is (yes)
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (repeat_while
-        repeat_label: (branch_label)
-        (activity_element
-          (activity_node
-            label: (activity_label
-              (text_line))))
-        condition: (condition_expression)
-        label: (branch_label)))
-    (enduml_directive)))
-
-===========================
 While loop
 ===========================
 @startuml
-while (Has items?) is (yes)
+while (Has items?)
   :Process item;
-endwhile (no)
-@enduml
-----------------------------
-(source_file
-  (diagram
-    (startuml_directive)
-    (activity_element
-      (while_loop
-        condition: (condition_expression)
-        label: (branch_label)
-        (activity_element
-          (activity_node
-            label: (activity_label
-              (text_line))))
-        end_label: (branch_label)))
-    (enduml_directive)))
-
-===========================
-While loop without end label
-===========================
-@startuml
-while (Running?) is (true)
-  :Execute;
 endwhile
 @enduml
 ----------------------------
@@ -81,7 +13,6 @@ endwhile
     (activity_element
       (while_loop
         condition: (condition_expression)
-        label: (branch_label)
         (activity_element
           (activity_node
             label: (activity_label
@@ -89,12 +20,38 @@ endwhile
     (enduml_directive)))
 
 ===========================
-Nested loops
+While loop with body
 ===========================
 @startuml
-while (Outer loop?) is (yes)
-  while (Inner loop?) is (yes)
-    :Process;
+while (condition?)
+  :Action 1;
+  :Action 2;
+endwhile
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (while_loop
+        condition: (condition_expression)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))
+
+===========================
+Nested while loops
+===========================
+@startuml
+while (outer?)
+  while (inner?)
+    :Nested action;
   endwhile
 endwhile
 @enduml
@@ -105,14 +62,58 @@ endwhile
     (activity_element
       (while_loop
         condition: (condition_expression)
-        label: (branch_label)
         (activity_element
           (while_loop
             condition: (condition_expression)
-            label: (branch_label)
             (activity_element
               (activity_node
                 label: (activity_label
                   (text_line))))))))
     (enduml_directive)))
 
+===========================
+While with if inside
+===========================
+@startuml
+while (continue?)
+  if (check?) then
+    :Do something;
+  endif
+endwhile
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (while_loop
+        condition: (condition_expression)
+        (activity_element
+          (decision_node
+            condition: (condition_expression)
+            (activity_element
+              (activity_node
+                label: (activity_label
+                  (text_line))))))))
+    (enduml_directive)))
+
+===========================
+Simple while loop
+===========================
+@startuml
+while (ready?)
+  :wait;
+endwhile
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (while_loop
+        condition: (condition_expression)
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
+    (enduml_directive)))

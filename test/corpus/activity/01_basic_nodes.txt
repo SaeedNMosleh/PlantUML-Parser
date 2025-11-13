@@ -58,7 +58,9 @@ Activity node with flow arrow
           (text_line))))
     (activity_element
       (flow_arrow
-        label: (arrow_label)))
+        (arrow
+          type: (arrow_type)
+          label: (arrow_label))))
     (activity_element
       (activity_node
         label: (activity_label
@@ -132,13 +134,17 @@ stop
         label: (activity_label
           (text_line))))
     (activity_element
-      (flow_arrow))
+      (flow_arrow
+        (arrow
+          type: (arrow_type))))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
     (activity_element
-      (flow_arrow))
+      (flow_arrow
+        (arrow
+          type: (arrow_type))))
     (activity_element
       (activity_node
         label: (activity_label

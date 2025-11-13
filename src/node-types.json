@@ -12,6 +12,10 @@
           "named": true
         },
         {
+          "type": "decision_node",
+          "named": true
+        },
+        {
           "type": "detach",
           "named": true
         },
@@ -20,7 +24,23 @@
           "named": true
         },
         {
+          "type": "fork_node",
+          "named": true
+        },
+        {
+          "type": "join_node",
+          "named": true
+        },
+        {
           "type": "kill",
+          "named": true
+        },
+        {
+          "type": "partition",
+          "named": true
+        },
+        {
+          "type": "repeat_loop",
           "named": true
         },
         {
@@ -33,6 +53,10 @@
         },
         {
           "type": "swimlane",
+          "named": true
+        },
+        {
+          "type": "while_loop",
           "named": true
         }
       ]
@@ -136,9 +160,25 @@
     "fields": {}
   },
   {
-    "type": "color_spec",
+    "type": "branch_label",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "color_spec",
+    "named": true,
+    "fields": {
+      "color": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
   },
   {
     "type": "comment",
@@ -160,7 +200,7 @@
     }
   },
   {
-    "type": "condition",
+    "type": "condition_expression",
     "named": true,
     "fields": {},
     "children": {
@@ -175,31 +215,68 @@
     }
   },
   {
-    "type": "control_flow_statement",
+    "type": "decision_node",
     "named": true,
-    "fields": {},
+    "fields": {
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "condition_expression",
+            "named": true
+          }
+        ]
+      },
+      "true_label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "branch_label",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": false,
-      "required": true,
+      "multiple": true,
+      "required": false,
       "types": [
         {
-          "type": "fork_statement",
+          "type": "activity_element",
           "named": true
         },
         {
-          "type": "if_statement",
+          "type": "comment",
           "named": true
         },
         {
-          "type": "repeat_statement",
+          "type": "else_branch",
           "named": true
         },
         {
-          "type": "split_statement",
+          "type": "elseif_branch",
           "named": true
         },
         {
-          "type": "while_statement",
+          "type": "include_directive",
+          "named": true
+        },
+        {
+          "type": "note_directive",
+          "named": true
+        },
+        {
+          "type": "pragma_directive",
+          "named": true
+        },
+        {
+          "type": "skinparam_directive",
+          "named": true
+        },
+        {
+          "type": "title_directive",
           "named": true
         }
       ]
@@ -222,42 +299,74 @@
           "named": true
         },
         {
-          "type": "control_flow_statement",
-          "named": true
-        },
-        {
-          "type": "directive_statement",
-          "named": true
-        },
-        {
           "type": "enduml_directive",
           "named": true
         },
         {
-          "type": "note_statement",
+          "type": "include_directive",
           "named": true
         },
         {
-          "type": "partition_statement",
+          "type": "note_directive",
+          "named": true
+        },
+        {
+          "type": "pragma_directive",
+          "named": true
+        },
+        {
+          "type": "skinparam_directive",
           "named": true
         },
         {
           "type": "startuml_directive",
+          "named": true
+        },
+        {
+          "type": "title_directive",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "directive_statement",
+    "type": "directive_value",
     "named": true,
-    "fields": {},
+    "fields": {}
+  },
+  {
+    "type": "else_branch",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "branch_label",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": false,
-      "required": true,
+      "multiple": true,
+      "required": false,
       "types": [
         {
+          "type": "activity_element",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
           "type": "include_directive",
+          "named": true
+        },
+        {
+          "type": "note_directive",
           "named": true
         },
         {
@@ -276,132 +385,25 @@
     }
   },
   {
-    "type": "directive_text",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "directive_value",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "else_clause",
+    "type": "elseif_branch",
     "named": true,
     "fields": {
-      "branch": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "activity_element",
-            "named": true
-          },
-          {
-            "type": "comment",
-            "named": true
-          },
-          {
-            "type": "control_flow_statement",
-            "named": true
-          },
-          {
-            "type": "directive_statement",
-            "named": true
-          },
-          {
-            "type": "note_statement",
-            "named": true
-          },
-          {
-            "type": "partition_statement",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
-    "type": "elseif_clause",
-    "named": true,
-    "fields": {
-      "branch": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "activity_element",
-            "named": true
-          },
-          {
-            "type": "comment",
-            "named": true
-          },
-          {
-            "type": "control_flow_statement",
-            "named": true
-          },
-          {
-            "type": "directive_statement",
-            "named": true
-          },
-          {
-            "type": "note_statement",
-            "named": true
-          },
-          {
-            "type": "partition_statement",
-            "named": true
-          }
-        ]
-      },
       "condition": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "condition",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
-    "type": "end_loop_label",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "loop_label_marker",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "floating_note",
-    "named": true,
-    "fields": {
-      "content": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "note_content_line",
+            "type": "condition_expression",
             "named": true
           }
         ]
       },
-      "id": {
+      "label": {
         "multiple": false,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "branch_label",
             "named": true
           }
         ]
@@ -412,11 +414,65 @@
       "required": false,
       "types": [
         {
+          "type": "activity_element",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "include_directive",
+          "named": true
+        },
+        {
+          "type": "note_directive",
+          "named": true
+        },
+        {
+          "type": "pragma_directive",
+          "named": true
+        },
+        {
+          "type": "skinparam_directive",
+          "named": true
+        },
+        {
+          "type": "title_directive",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "floating_note",
+    "named": true,
+    "fields": {
+      "position": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
           "type": "content_end",
           "named": true
         },
         {
           "type": "content_start",
+          "named": true
+        },
+        {
+          "type": "note_content_line",
           "named": true
         }
       ]
@@ -483,151 +539,9 @@
     }
   },
   {
-    "type": "fork_again",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "activity_element",
-          "named": true
-        },
-        {
-          "type": "comment",
-          "named": true
-        },
-        {
-          "type": "control_flow_statement",
-          "named": true
-        },
-        {
-          "type": "directive_statement",
-          "named": true
-        },
-        {
-          "type": "fork_label",
-          "named": true
-        },
-        {
-          "type": "note_statement",
-          "named": true
-        },
-        {
-          "type": "partition_statement",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "fork_label",
+    "type": "fork_node",
     "named": true,
     "fields": {}
-  },
-  {
-    "type": "fork_statement",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "activity_element",
-          "named": true
-        },
-        {
-          "type": "comment",
-          "named": true
-        },
-        {
-          "type": "control_flow_statement",
-          "named": true
-        },
-        {
-          "type": "directive_statement",
-          "named": true
-        },
-        {
-          "type": "fork_again",
-          "named": true
-        },
-        {
-          "type": "fork_label",
-          "named": true
-        },
-        {
-          "type": "note_statement",
-          "named": true
-        },
-        {
-          "type": "partition_statement",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "if_statement",
-    "named": true,
-    "fields": {
-      "condition": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "condition",
-            "named": true
-          }
-        ]
-      },
-      "then_branch": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "activity_element",
-            "named": true
-          },
-          {
-            "type": "comment",
-            "named": true
-          },
-          {
-            "type": "control_flow_statement",
-            "named": true
-          },
-          {
-            "type": "directive_statement",
-            "named": true
-          },
-          {
-            "type": "note_statement",
-            "named": true
-          },
-          {
-            "type": "partition_statement",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "else_clause",
-          "named": true
-        },
-        {
-          "type": "elseif_clause",
-          "named": true
-        }
-      ]
-    }
   },
   {
     "type": "include_directive",
@@ -646,30 +560,9 @@
     }
   },
   {
-    "type": "inline_note",
+    "type": "join_node",
     "named": true,
-    "fields": {
-      "content": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "note_text",
-            "named": true
-          }
-        ]
-      },
-      "position": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "note_position",
-            "named": true
-          }
-        ]
-      }
-    }
+    "fields": {}
   },
   {
     "type": "line_comment",
@@ -677,78 +570,7 @@
     "fields": {}
   },
   {
-    "type": "loop_label",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "loop_label_marker",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "multiline_note",
-    "named": true,
-    "fields": {
-      "content": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "note_content_line",
-            "named": true
-          }
-        ]
-      },
-      "position": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "note_position",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "content_end",
-          "named": true
-        },
-        {
-          "type": "content_start",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "note_position",
-    "named": true,
-    "fields": {
-      "target": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
-    "type": "note_statement",
+    "type": "note_directive",
     "named": true,
     "fields": {},
     "children": {
@@ -760,29 +582,50 @@
           "named": true
         },
         {
-          "type": "inline_note",
-          "named": true
-        },
-        {
-          "type": "multiline_note",
+          "type": "note_line",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "note_text",
+    "type": "note_line",
     "named": true,
-    "fields": {}
+    "fields": {
+      "content": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "text_line",
+            "named": true
+          }
+        ]
+      },
+      "position": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
   },
   {
-    "type": "partition_statement",
+    "type": "partition",
     "named": true,
     "fields": {
       "name": {
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
           {
             "type": "string",
             "named": true
@@ -807,19 +650,23 @@
           "named": true
         },
         {
-          "type": "control_flow_statement",
+          "type": "include_directive",
           "named": true
         },
         {
-          "type": "directive_statement",
+          "type": "note_directive",
           "named": true
         },
         {
-          "type": "note_statement",
+          "type": "pragma_directive",
           "named": true
         },
         {
-          "type": "partition_statement",
+          "type": "skinparam_directive",
+          "named": true
+        },
+        {
+          "type": "title_directive",
           "named": true
         }
       ]
@@ -852,56 +699,60 @@
     }
   },
   {
-    "type": "repeat_statement",
+    "type": "repeat_loop",
     "named": true,
     "fields": {
-      "body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "activity_element",
-            "named": true
-          },
-          {
-            "type": "comment",
-            "named": true
-          },
-          {
-            "type": "control_flow_statement",
-            "named": true
-          },
-          {
-            "type": "directive_statement",
-            "named": true
-          },
-          {
-            "type": "note_statement",
-            "named": true
-          },
-          {
-            "type": "partition_statement",
-            "named": true
-          }
-        ]
-      },
       "condition": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "condition",
+            "type": "condition_expression",
+            "named": true
+          }
+        ]
+      },
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "branch_label",
             "named": true
           }
         ]
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
-          "type": "loop_label",
+          "type": "activity_element",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "include_directive",
+          "named": true
+        },
+        {
+          "type": "note_directive",
+          "named": true
+        },
+        {
+          "type": "pragma_directive",
+          "named": true
+        },
+        {
+          "type": "skinparam_directive",
+          "named": true
+        },
+        {
+          "type": "title_directive",
           "named": true
         }
       ]
@@ -926,7 +777,7 @@
         "required": true,
         "types": [
           {
-            "type": "directive_value",
+            "type": "identifier",
             "named": true
           }
         ]
@@ -947,80 +798,6 @@
         },
         {
           "type": "diagram",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "split_again",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "activity_element",
-          "named": true
-        },
-        {
-          "type": "comment",
-          "named": true
-        },
-        {
-          "type": "control_flow_statement",
-          "named": true
-        },
-        {
-          "type": "directive_statement",
-          "named": true
-        },
-        {
-          "type": "note_statement",
-          "named": true
-        },
-        {
-          "type": "partition_statement",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "split_statement",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "activity_element",
-          "named": true
-        },
-        {
-          "type": "comment",
-          "named": true
-        },
-        {
-          "type": "control_flow_statement",
-          "named": true
-        },
-        {
-          "type": "directive_statement",
-          "named": true
-        },
-        {
-          "type": "note_statement",
-          "named": true
-        },
-        {
-          "type": "partition_statement",
-          "named": true
-        },
-        {
-          "type": "split_again",
           "named": true
         }
       ]
@@ -1083,12 +860,12 @@
     "type": "title_directive",
     "named": true,
     "fields": {
-      "text": {
+      "content": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "directive_text",
+            "type": "text_line",
             "named": true
           }
         ]
@@ -1096,45 +873,35 @@
     }
   },
   {
-    "type": "while_statement",
+    "type": "while_loop",
     "named": true,
     "fields": {
-      "body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "activity_element",
-            "named": true
-          },
-          {
-            "type": "comment",
-            "named": true
-          },
-          {
-            "type": "control_flow_statement",
-            "named": true
-          },
-          {
-            "type": "directive_statement",
-            "named": true
-          },
-          {
-            "type": "note_statement",
-            "named": true
-          },
-          {
-            "type": "partition_statement",
-            "named": true
-          }
-        ]
-      },
       "condition": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "condition",
+            "type": "condition_expression",
+            "named": true
+          }
+        ]
+      },
+      "end_label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "branch_label",
+            "named": true
+          }
+        ]
+      },
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "branch_label",
             "named": true
           }
         ]
@@ -1145,11 +912,31 @@
       "required": false,
       "types": [
         {
-          "type": "end_loop_label",
+          "type": "activity_element",
           "named": true
         },
         {
-          "type": "loop_label",
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "include_directive",
+          "named": true
+        },
+        {
+          "type": "note_directive",
+          "named": true
+        },
+        {
+          "type": "pragma_directive",
+          "named": true
+        },
+        {
+          "type": "skinparam_directive",
+          "named": true
+        },
+        {
+          "type": "title_directive",
           "named": true
         }
       ]
@@ -1220,16 +1007,8 @@
     "named": false
   },
   {
-    "type": "again",
-    "named": false
-  },
-  {
     "type": "arrow_label_marker",
     "named": true
-  },
-  {
-    "type": "as",
-    "named": false
   },
   {
     "type": "bottom",
@@ -1285,6 +1064,10 @@
   },
   {
     "type": "if",
+    "named": false
+  },
+  {
+    "type": "is",
     "named": false
   },
   {

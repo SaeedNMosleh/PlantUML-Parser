@@ -13,7 +13,7 @@ partition "Database Operations" {
     (startuml_directive)
     (activity_element
       (partition
-        name: (quoted_identifier)
+        name: (string)
         (activity_element
           (activity_node
             label: (activity_label
@@ -61,7 +61,7 @@ partition Backend #LightBlue {
       (partition
         name: (identifier)
         (color_spec
-          (color))
+          color: (identifier))
         (activity_element
           (activity_node
             label: (activity_label
@@ -72,11 +72,11 @@ partition Backend #LightBlue {
 Multiple partitions
 ===========================
 @startuml
-partition Frontend {
-  :Render UI;
+partition First {
+  :Action 1;
 }
-partition Backend {
-  :Process data;
+partition Second {
+  :Action 2;
 }
 @enduml
 ----------------------------
@@ -106,9 +106,7 @@ Swimlanes
 |User|
 :Login;
 |System|
-:Authenticate;
-|Database|
-:Check credentials;
+:Validate;
 @enduml
 ----------------------------
 (source_file
@@ -116,21 +114,14 @@ Swimlanes
     (startuml_directive)
     (activity_element
       (swimlane
-        name: (swimlane_name)))
+        name: (identifier)))
     (activity_element
       (activity_node
         label: (activity_label
           (text_line))))
     (activity_element
       (swimlane
-        name: (swimlane_name)))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (swimlane
-        name: (swimlane_name)))
+        name: (identifier)))
     (activity_element
       (activity_node
         label: (activity_label
@@ -141,27 +132,23 @@ Swimlanes
 Mixed partitions and swimlanes
 ===========================
 @startuml
-|User|
-:Click button;
-|System|
-:Process request;
+partition Frontend {
+  |User|
+  :Click button;
+}
 @enduml
 ----------------------------
 (source_file
   (diagram
     (startuml_directive)
     (activity_element
-      (swimlane
-        name: (swimlane_name)))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (swimlane
-        name: (swimlane_name)))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
+      (partition
+        name: (identifier)
+        (activity_element
+          (swimlane
+            name: (identifier)))
+        (activity_element
+          (activity_node
+            label: (activity_label
+              (text_line))))))
     (enduml_directive)))

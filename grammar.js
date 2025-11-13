@@ -16,6 +16,8 @@
 module.exports = grammar({
   name: 'plantuml',
 
+  word: $ => $.identifier,
+
   // External scanner tokens (from scanner.c)
   externals: $ => [
     $.start_marker,       // «START»
@@ -35,7 +37,7 @@ module.exports = grammar({
   conflicts: $ => [
     [$.activity_element, $._flow_source],
     [$.activity_element, $._flow_target],
-    [$.while_statement, $.repeat_statement]
+    [$.while_loop, $.repeat_loop]
   ],
 
   // Precedence rules for clean parsing
@@ -71,10 +73,11 @@ module.exports = grammar({
     // Statements
     _statement: $ => choice(
       $.activity_element,
-      $.control_flow_statement,
-      $.directive_statement,
-      $.partition_statement,
-      $.note_statement,
+      $.title_directive,
+      $.skinparam_directive,
+      $.pragma_directive,
+      $.include_directive,
+      $.note_directive,
       $.comment,
       $._whitespace
     ),
@@ -86,6 +89,12 @@ module.exports = grammar({
       $.start_node,
       $.stop_node,
       $.activity_node,
+      $.decision_node,
+      $.while_loop,
+      $.repeat_loop,
+      $.fork_node,
+      $.join_node,
+      $.partition,
       $.flow_arrow,
       $.detach,
       $.kill,
@@ -182,133 +191,103 @@ module.exports = grammar({
 
     // ============= Control Flow =============
 
-    control_flow_statement: $ => choice(
-      $.if_statement,
-      $.while_statement,
-      $.repeat_statement,
-      $.fork_statement,
-      $.split_statement
-    ),
-
-    // If-then-else (with marked conditions)
-    if_statement: $ => seq(
+    // If-then-else (decision nodes)
+    decision_node: $ => seq(
       'if',
-      field('condition', $.condition),
-      optional('then'),
-      field('then_branch', repeat($._statement)),
-      repeat($.elseif_clause),
-      optional($.else_clause),
+      field('condition', $.condition_expression),
+      'then',
+      optional(prec(2, field('true_label', $.branch_label))),
+      repeat($._statement),
+      repeat($.elseif_branch),
+      optional($.else_branch),
       'endif'
     ),
 
-    elseif_clause: $ => seq(
+    elseif_branch: $ => seq(
       'elseif',
-      field('condition', $.condition),
-      optional('then'),
-      field('branch', repeat($._statement))
+      field('condition', $.condition_expression),
+      'then',
+      optional(prec(2, field('label', $.branch_label))),
+      repeat($._statement)
     ),
 
-    else_clause: $ => seq(
+    else_branch: $ => seq(
       'else',
-      field('branch', repeat($._statement))
+      optional(prec(2, field('label', $.branch_label))),
+      repeat($._statement)
     ),
 
-    condition: $ => seq(
-      optional($.condition_marker),
+    branch_label: $ => seq(
       '(',
-      field('expression', /[^)]+/),
+      /[^)]+/,
       ')'
     ),
 
-    // While loops (with marked labels)
-    while_statement: $ => seq(
+    condition_expression: $ => seq(
+      optional($.condition_marker),
+      '(',
+      /[^)]+/,
+      ')'
+    ),
+
+    // While loops
+    while_loop: $ => seq(
       'while',
-      field('condition', $.condition),
-      optional($.loop_label),
-      field('body', repeat($._statement)),
+      field('condition', $.condition_expression),
+      optional(seq('is', field('label', $.branch_label))),
+      repeat($._statement),
       'endwhile',
-      optional($.end_loop_label)
+      optional(field('end_label', $.branch_label))
     ),
 
     // Repeat-while loops
-    repeat_statement: $ => prec.left(seq(
+    repeat_loop: $ => prec.left(seq(
       'repeat',
-      field('body', repeat($._statement)),
+      repeat1($._statement),
       'repeat',
       'while',
-      field('condition', $.condition),
-      optional($.loop_label)
+      field('condition', $.condition_expression),
+      optional(seq('is', field('label', $.branch_label)))
     )),
 
     loop_label: $ => seq(
       optional($.loop_label_marker),
       '(',
-      field('label', /[^)]+/),
+      /[^)]+/,
       ')'
     ),
 
     end_loop_label: $ => seq(
       optional($.loop_label_marker),
       '(',
-      field('label', /[^)]+/),
+      /[^)]+/,
       ')'
     ),
 
-    // Fork and split
-    fork_statement: $ => prec.left(seq(
+    // Fork and split - flat markers
+    fork_node: $ => choice(
+      token(seq('fork', /\s+/, 'again')),
+      token(seq('split', /\s+/, 'again')),
       'fork',
-      optional($.fork_label),
-      repeat($._statement),
-      repeat($.fork_again),
-      'end',
-      'fork',
-      optional($.fork_label)
-    )),
-
-    fork_again: $ => prec.left(seq(
-      'fork',
-      'again',
-      optional($.fork_label),
-      repeat($._statement)
-    )),
-
-    fork_label: $ => seq(
-      ':',
-      field('label', /[^;\n]+/)
+      'split'
     ),
 
-    split_statement: $ => prec.left(seq(
-      'split',
-      repeat($._statement),
-      repeat($.split_again),
-      'end',
-      'split'
-    )),
-
-    split_again: $ => prec.left(seq(
-      'split',
-      'again',
-      repeat($._statement)
-    )),
+    join_node: $ => choice(
+      seq('end', 'fork'),
+      seq('end', 'split')
+    ),
 
     // ============= Directives =============
 
-    directive_statement: $ => choice(
-      $.title_directive,
-      $.skinparam_directive,
-      $.pragma_directive,
-      $.include_directive
-    ),
-
     title_directive: $ => seq(
       'title',
-      field('text', $.directive_text)
+      field('content', alias(/[^\n]+/, $.text_line))
     ),
 
     skinparam_directive: $ => seq(
       'skinparam',
       field('parameter', $.identifier),
-      field('value', $.directive_value)
+      field('value', $.identifier)
     ),
 
     pragma_directive: $ => seq(
@@ -327,9 +306,9 @@ module.exports = grammar({
 
     // ============= Partitions =============
 
-    partition_statement: $ => seq(
+    partition: $ => seq(
       'partition',
-      field('name', optional($.string)),
+      field('name', optional(choice($.string, $.identifier))),
       optional($.color_spec),
       '{',
       repeat($._statement),
@@ -338,48 +317,31 @@ module.exports = grammar({
 
     color_spec: $ => seq(
       '#',
-      field('color', /[A-Fa-f0-9]{3,8}|\w+/)
+      field('color', $.identifier)
     ),
 
     // ============= Notes =============
 
-    note_statement: $ => choice(
-      $.inline_note,
-      $.multiline_note,
+    note_directive: $ => choice(
+      $.note_line,
       $.floating_note
     ),
 
-    inline_note: $ => seq(
+    note_line: $ => seq(
       'note',
-      field('position', $.note_position),
+      field('position', $.identifier),
       ':',
-      field('content', $.note_text)
-    ),
-
-    multiline_note: $ => seq(
-      'note',
-      field('position', $.note_position),
-      $.content_start,
-      field('content', repeat($.note_content_line)),
-      $.content_end,
-      'end',
-      'note'
+      field('content', alias(/[^\n]+/, $.text_line))
     ),
 
     floating_note: $ => seq(
       'note',
-      choice(
-        seq('"', field('content', /[^"]+/), '"'),
-        seq(
-          'as',
-          field('id', $.identifier),
-          $.content_start,
-          field('content', repeat($.note_content_line)),
-          $.content_end,
-          'end',
-          'note'
-        )
-      )
+      field('position', $.identifier),
+      $.content_start,
+      repeat1($.note_content_line),
+      $.content_end,
+      'end',
+      'note'
     ),
 
     note_position: $ => choice(
