@@ -4,6 +4,34 @@
 
 This specification defines a **tree-sitter-based parser for PlantUML**, designed as a standalone, reusable component that can be consumed by diagram editors, IDEs, and other tools requiring PlantUML source code analysis.
 
+## Current Implementation Status
+
+**Last Updated**: 2025-11-13
+
+### What's Working
+- ✅ **Parser Generation**: Grammar compiles successfully with tree-sitter
+- ✅ **Native Binding**: C/C++ binding builds without errors
+- ✅ **Grammar Definition**: Complete grammar for Activity diagrams (Phase 1)
+- ✅ **Test Suite**: 35+ corpus tests ready for activity diagrams
+- ✅ **Preprocessor**: Resolves PlantUML ambiguities (e.g., `(*)` as START vs STOP)
+- ✅ **External Scanner**: Context-sensitive token recognition
+
+### Critical Blocker
+- ❌ **Runtime Parsing**: Tree-sitter binding compatibility issue
+  - **Symptom**: Binding loads but is rejected with "Invalid language object"
+  - **Impact**: Cannot parse any PlantUML code at runtime
+  - **Affects**: All diagram types, all functionality
+  - **Status**: Under investigation
+
+### Architecture Decision
+The current implementation uses a **preprocessing approach**:
+1. **Normalizer**: Standardizes syntax variations
+2. **Semantic Preprocessor**: Resolves PlantUML's context-dependent ambiguities
+3. **Scanner**: Recognizes preprocessing markers
+4. **Grammar**: Defines structure without semantic ambiguities
+
+This approach acknowledges that PlantUML's ambiguous syntax (same tokens mean different things in different contexts) cannot be handled by traditional tree-sitter patterns alone.
+
 ## Project Vision
 
 Create a high-performance, incremental PlantUML parser that:

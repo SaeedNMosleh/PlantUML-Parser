@@ -9,15 +9,15 @@
  *
  * 1. Start/Stop Node Ambiguity
  *    Problem: (*) can mean start_node or stop_node depending on position
- *    Solution: Replace with __START__(*) or __STOP__(*) based on context
+ *    Solution: Replace with «START»(*) or «STOP»(*) based on context
  *
  * 2. While Loop End Label Ambiguity
  *    Problem: "endwhile (label)" parsing fails, parser closes loop early
- *    Solution: Add __ENDLABEL__ marker: "endwhile __ENDLABEL__(label)"
+ *    Solution: Add «LABEL» marker: "endwhile «LABEL»(label)"
  *
  * 3. Floating Note Content Ambiguity
  *    Problem: External scanner fails to recognize multiline note content
- *    Solution: Wrap content with __NOTE_CONTENT_BEGIN__/__NOTE_CONTENT_END__
+ *    Solution: Wrap content with «CONTENT_START»/«CONTENT_END»
  *
  * @module preprocessor
  */
@@ -147,7 +147,7 @@ class PlantUMLPreprocessor {
    * RULE 1: Disambiguate (*) tokens into start_node or stop_node
    *
    * Problem: (*) is ambiguous - could be start or stop based on context
-   * Solution: First (*) in diagram = __START__(*), subsequent = __STOP__(*)
+   * Solution: First (*) in diagram = «START»(*), subsequent = «STOP»(*)
    *
    * @private
    */
@@ -160,14 +160,14 @@ class PlantUMLPreprocessor {
         // First (*) or before any activity = START
         stats.startStopReplacements++;
         return {
-          line: line.replace('(*)', '<START>(*)'),
+          line: line.replace('(*)', '«START»(*)'),
           replaced: true
         };
       } else {
         // After activity content = STOP
         stats.startStopReplacements++;
         return {
-          line: line.replace('(*)', '<STOP>(*)'),
+          line: line.replace('(*)', '«STOP»(*)'),
           replaced: true
         };
       }
@@ -180,11 +180,11 @@ class PlantUMLPreprocessor {
    * RULE 2: Annotate while loop end labels
    *
    * Problem: "endwhile (label)" fails to parse - loop closes early
-   * Solution: Add __ENDLABEL__ marker to make end label explicit
+   * Solution: Add «LABEL» marker to make end label explicit
    *
    * Example:
    *   Input:  endwhile (no)
-   *   Output: endwhile __ENDLABEL__(no)
+   *   Output: endwhile «LABEL»(no)
    *
    * @private
    */
@@ -194,7 +194,7 @@ class PlantUMLPreprocessor {
     if (/endwhile\s*\(/.test(line)) {
       stats.endLabelAnnotations++;
       return {
-        line: line.replace(/endwhile\s*\(/, 'endwhile <ENDLABEL>('),
+        line: line.replace(/endwhile\s*\(/, 'endwhile «LABEL»('),
         annotated: true
       };
     }
@@ -215,10 +215,10 @@ class PlantUMLPreprocessor {
    *           end note
    *
    *   Output: note left
-   *           __NOTE_CONTENT_BEGIN__
+   *           «CONTENT_START»
    *             Content line 1
    *             Content line 2
-   *           __NOTE_CONTENT_END__
+   *           «CONTENT_END»
    *           end note
    *
    * @private
@@ -238,7 +238,7 @@ class PlantUMLPreprocessor {
       stats.floatingNoteMarkers++;
 
       // Add content begin marker on next line
-      addedLines.push('<NOTE_CONTENT_BEGIN>');
+      addedLines.push('«CONTENT_START»');
 
       return { line, addedLines };
     }
@@ -247,10 +247,10 @@ class PlantUMLPreprocessor {
     if (state.inFloatingNote && /^end\s+note/.test(trimmed)) {
       state.inFloatingNote = false;
 
-      // We need to insert <NOTE_CONTENT_END> BEFORE "end note"
+      // We need to insert «CONTENT_END» BEFORE "end note"
       // Return the marker as current line, and "end note" as added line
       return {
-        line: '<NOTE_CONTENT_END>',
+        line: '«CONTENT_END»',
         addedLines: [line]
       };
     }

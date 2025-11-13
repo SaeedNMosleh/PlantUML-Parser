@@ -1,7 +1,0 @@
-@startuml
-if (Condition?) then (yes)
-  :Action A;
-else (no)
-  :Action B;
-endif
-@enduml

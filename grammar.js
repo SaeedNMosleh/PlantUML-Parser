@@ -1,4 +1,10 @@
 /**
+ * PlantUML Tree-sitter Grammar
+ *
+ * This grammar works with preprocessed PlantUML code that contains
+ * disambiguation markers. The preprocessing stage resolves all ambiguities,
+ * allowing this grammar to be clean and conflict-free.
+ *
  * @file PlantUML grammar for tree-sitter
  * @author PlantUML Parser Team
  * @license MIT
@@ -10,319 +16,407 @@
 module.exports = grammar({
   name: 'plantuml',
 
+  // External scanner tokens (from scanner.c)
   externals: $ => [
-    // Removed: $.note_content_line - now using preprocessor markers and simple regex
-    $.error_sentinel
+    $.start_marker,       // «START»
+    $.stop_marker,        // «STOP»
+    $.label_marker,       // «LABEL»
+    $.content_start,      // «CONTENT_START»
+    $.content_end,        // «CONTENT_END»
+    $.arrow_label_marker, // «ARROW_LABEL»
+    $.activity_marker,    // «ACTIVITY»
+    $.condition_marker,   // «CONDITION»
+    $.loop_label_marker,  // «LOOP_LABEL»
+    $.note_content_line,  // Multiline note content
+    $.error_sentinel      // Error recovery
+  ],
+
+  // Minimal conflicts for structural ambiguities (not semantic ones)
+  conflicts: $ => [
+    [$.activity_element, $._flow_source],
+    [$.activity_element, $._flow_target],
+    [$.while_statement, $.repeat_statement]
+  ],
+
+  // Precedence rules for clean parsing
+  precedences: $ => [
+    ['arrow_label', 'activity'],
+    ['control_flow', 'statement']
   ],
 
   extras: $ => [
     /\s/  // Whitespace
   ],
 
-  conflicts: $ => [
-    [$.start_node, $.stop_node],
-    [$.stop_node, $.join_node],
-    [$.activity_label, $.multiline_text],
-    [$.repeat_while, $.while_loop]
-  ],
-
   rules: {
-    source_file: $ => repeat($._definition),
+    // Root rule - changed from source_file to match existing tests
+    source_file: $ => repeat($._element),
 
-    _definition: $ => choice(
+    _element: $ => choice(
       $.diagram,
-      $.comment
+      $.comment,
+      $._whitespace
     ),
 
+    // Diagram structure
     diagram: $ => seq(
       $.startuml_directive,
-      repeat($._diagram_element),
+      repeat($._statement),
       $.enduml_directive
     ),
 
-    startuml_directive: $ => seq(
-      '@startuml',
-      optional($.identifier)
-    ),
+    startuml_directive: $ => /@startuml(?:[ \t]+[^ \t\n\r]+)?/,
+    enduml_directive: $ => /@enduml/,
 
-    enduml_directive: $ => '@enduml',
-
-    _diagram_element: $ => choice(
+    // Statements
+    _statement: $ => choice(
       $.activity_element,
-      $._common_directive,
-      $.comment
+      $.control_flow_statement,
+      $.directive_statement,
+      $.partition_statement,
+      $.note_statement,
+      $.comment,
+      $._whitespace
     ),
 
-    // ===========================
-    // Activity Diagram Elements
-    // ===========================
+    // ============= Activity Diagram Elements =============
 
+    // Activity element wrapper (matches test expectations)
     activity_element: $ => choice(
-      $.activity_node,
       $.start_node,
       $.stop_node,
-      $.decision_node,
-      $.fork_node,
-      $.join_node,
-      $.partition,
-      $.swimlane,
+      $.activity_node,
       $.flow_arrow,
-      $.repeat_while,
-      $.while_loop,
-      $.detach_statement
+      $.detach,
+      $.kill,
+      $.swimlane
     ),
 
-    // Activity node: :label;
+    start_node: $ => choice(
+      'start',
+      seq(
+        field('marker', $.start_marker),
+        '(*)'
+      )
+    ),
+
+    stop_node: $ => choice(
+      'stop',
+      seq(
+        field('marker', $.stop_marker),
+        '(*)'
+      )
+    ),
+
+    // Activity nodes
     activity_node: $ => seq(
       ':',
       field('label', $.activity_label),
       ';'
     ),
 
-    activity_label: $ => choice(
-      $.text_line,
-      $.multiline_text
+    activity_label: $ => $.text_line,
+
+    text_line: $ => /[^;]+/,
+
+    // Flow arrows and labels
+    flow_arrow: $ => prec.left(seq(
+      optional(field('source', $._flow_source)),
+      $.arrow,
+      optional(field('target', $._flow_target)),
+      optional(';')
+    )),
+
+    _flow_source: $ => choice(
+      $.identifier,
+      $.activity_node,
+      $.start_node,
+      $.stop_node
     ),
 
-    multiline_text: $ => seq(
-      $.text_line,
-      repeat(seq('\\n', $.text_line))
+    _flow_target: $ => choice(
+      $.identifier,
+      $.activity_node,
+      $.start_node,
+      $.stop_node
     ),
 
-    // Start node
-    // Note: Preprocessor adds <START> token to disambiguate from stop_node
-    start_node: $ => choice(
-      'start',
-      '(*top)',
-      seq('<START>', '(*)'),
-      seq('<START>', '(', '*', ')')
+    arrow: $ => prec.left(seq(
+      field('style', optional($.arrow_style)),
+      field('type', $.arrow_type),
+      field('label', optional($.arrow_label))
+    )),
+
+    arrow_style: $ => choice(
+      '-[', // Colored/styled arrow start
+      '['   // Alternative style
     ),
 
-    // Stop node
-    // Note: Preprocessor adds <STOP> token to disambiguate from start_node
-    // Note: 'end' alone removed to avoid conflict with 'end note', 'end fork', etc.
-    //       Use 'stop' for explicit stop nodes
-    stop_node: $ => choice(
-      'stop',
-      seq('<STOP>', '(*)'),
-      seq('<STOP>', '(', '*', ')')
+    arrow_type: $ => choice(
+      /->+/,   // Right arrow (one or more dashes)
+      /<-+/,   // Left arrow
+      /-->+/,  // Long right arrow
+      /<--+/,  // Long left arrow
+      /\.>+/,  // Dotted right arrow
+      /<\.+/,  // Dotted left arrow
+      '=>',    // Thick arrow
+      '<='     // Thick left arrow
     ),
 
-    // Decision node: if-then-else
-    decision_node: $ => seq(
-      'if',
-      '(',
-      field('condition', $.condition_expression),
-      ')',
-      'then',
-      optional(seq('(', field('true_label', $.branch_label), ')')),
-      repeat($._diagram_element),
-      repeat($.elseif_branch),
-      optional($.else_branch),
-      'endif'
+    arrow_label: $ => seq(
+      optional(':'),
+      optional($.arrow_label_marker),
+      field('text', /[^;\n]+/)
     ),
 
-    elseif_branch: $ => seq(
-      'elseif',
-      '(',
-      field('condition', $.condition_expression),
-      ')',
-      'then',
-      optional(seq('(', field('label', $.branch_label), ')')),
-      repeat($._diagram_element)
-    ),
+    // Detach and kill
+    detach: $ => 'detach',
+    kill: $ => 'kill',
 
-    else_branch: $ => seq(
-      'else',
-      optional(seq('(', field('label', $.branch_label), ')')),
-      repeat($._diagram_element)
-    ),
-
-    condition_expression: $ => /[^)]+/,
-
-    // Fork/Join nodes
-    fork_node: $ => choice(
-      'fork',
-      seq('fork', 'again'),
-      'split',
-      seq('split', 'again')
-    ),
-
-    join_node: $ => choice(
-      seq('end', 'fork'),
-      seq('end', 'split')
-    ),
-
-    // Partition
-    partition: $ => seq(
-      'partition',
-      field('name', choice($.identifier, $.quoted_identifier)),
-      optional($.color_spec),
-      '{',
-      repeat($._diagram_element),
-      '}'
-    ),
-
-    // Swimlane
+    // Swimlanes
     swimlane: $ => seq(
       '|',
-      field('name', $.swimlane_name),
+      field('name', $.identifier),
       '|'
     ),
 
-    swimlane_name: $ => /[^|\n]+/,
+    // ============= Control Flow =============
 
-    color_spec: $ => seq(
-      '#',
-      $.color
+    control_flow_statement: $ => choice(
+      $.if_statement,
+      $.while_statement,
+      $.repeat_statement,
+      $.fork_statement,
+      $.split_statement
     ),
 
-    color: $ => token(choice(
-      /[A-Za-z][A-Za-z0-9_]*/,  // Named color
-      /[0-9A-Fa-f]{6}/,          // Hex color
-      /[0-9A-Fa-f]{3}/           // Short hex
-    )),
-
-    // Flow arrow
-    flow_arrow: $ => choice(
-      seq('->', optional(field('label', $.arrow_label)), ';'),
-      seq('-->', optional(field('label', $.arrow_label)), ';')
+    // If-then-else (with marked conditions)
+    if_statement: $ => seq(
+      'if',
+      field('condition', $.condition),
+      optional('then'),
+      field('then_branch', repeat($._statement)),
+      repeat($.elseif_clause),
+      optional($.else_clause),
+      'endif'
     ),
 
-    arrow_label: $ => /[^;\n]+/,
+    elseif_clause: $ => seq(
+      'elseif',
+      field('condition', $.condition),
+      optional('then'),
+      field('branch', repeat($._statement))
+    ),
 
-    // Repeat-while loop
-    repeat_while: $ => prec.left(seq(
-      'repeat',
-      optional(field('repeat_label', alias($._repeat_label_content, $.branch_label))),
-      repeat($._diagram_element),
-      'repeat',
-      'while',
-      '(',
-      field('condition', $.condition_expression),
-      ')',
-      'is',
-      '(',
-      field('label', $.branch_label),
-      ')',
-      optional(seq(choice('->', '-->'), optional($.arrow_label)))
-    )),
+    else_clause: $ => seq(
+      'else',
+      field('branch', repeat($._statement))
+    ),
 
-    // While loop
-    // Note: Preprocessor adds <ENDLABEL> marker for optional end label
-    while_loop: $ => prec.left(seq(
+    condition: $ => seq(
+      optional($.condition_marker),
+      '(',
+      field('expression', /[^)]+/),
+      ')'
+    ),
+
+    // While loops (with marked labels)
+    while_statement: $ => seq(
       'while',
-      '(',
-      field('condition', $.condition_expression),
-      ')',
-      'is',
-      '(',
-      field('label', $.branch_label),
-      ')',
-      repeat($._diagram_element),
+      field('condition', $.condition),
+      optional($.loop_label),
+      field('body', repeat($._statement)),
       'endwhile',
-      optional(seq(optional('<ENDLABEL>'), '(', field('end_label', $.branch_label), ')'))
+      optional($.end_loop_label)
+    ),
+
+    // Repeat-while loops
+    repeat_statement: $ => prec.left(seq(
+      'repeat',
+      field('body', repeat($._statement)),
+      'repeat',
+      'while',
+      field('condition', $.condition),
+      optional($.loop_label)
     )),
 
-    // Detach
-    detach_statement: $ => 'detach',
+    loop_label: $ => seq(
+      optional($.loop_label_marker),
+      '(',
+      field('label', /[^)]+/),
+      ')'
+    ),
 
-    // ===========================
-    // Common Directives
-    // ===========================
+    end_loop_label: $ => seq(
+      optional($.loop_label_marker),
+      '(',
+      field('label', /[^)]+/),
+      ')'
+    ),
 
-    _common_directive: $ => choice(
+    // Fork and split
+    fork_statement: $ => prec.left(seq(
+      'fork',
+      optional($.fork_label),
+      repeat($._statement),
+      repeat($.fork_again),
+      'end',
+      'fork',
+      optional($.fork_label)
+    )),
+
+    fork_again: $ => prec.left(seq(
+      'fork',
+      'again',
+      optional($.fork_label),
+      repeat($._statement)
+    )),
+
+    fork_label: $ => seq(
+      ':',
+      field('label', /[^;\n]+/)
+    ),
+
+    split_statement: $ => prec.left(seq(
+      'split',
+      repeat($._statement),
+      repeat($.split_again),
+      'end',
+      'split'
+    )),
+
+    split_again: $ => prec.left(seq(
+      'split',
+      'again',
+      repeat($._statement)
+    )),
+
+    // ============= Directives =============
+
+    directive_statement: $ => choice(
       $.title_directive,
-      $.note_directive,
-      $.skinparam_directive
+      $.skinparam_directive,
+      $.pragma_directive,
+      $.include_directive
     ),
 
     title_directive: $ => seq(
       'title',
-      field('content', $.text_line)
+      field('text', $.directive_text)
     ),
-
-    note_directive: $ => choice(
-      $.floating_note,
-      $.note_line
-    ),
-
-    note_line: $ => seq(
-      'note',
-      field('position', alias(choice('left', 'right'), $.identifier)),
-      token.immediate(':'),
-      field('content', $.text_line)
-    ),
-
-    floating_note: $ => prec(1, seq(
-      'note',
-      field('position', alias(choice('left', 'right', 'top', 'bottom'), $.identifier)),
-      optional(seq('of', field('target', $.identifier))),
-      optional('<NOTE_CONTENT_BEGIN>'),
-      repeat($.note_content_line),
-      optional('<NOTE_CONTENT_END>'),
-      'end',
-      'note'
-    )),
 
     skinparam_directive: $ => seq(
       'skinparam',
       field('parameter', $.identifier),
-      field('value', $.identifier)
+      field('value', $.directive_value)
     ),
 
-    // ===========================
-    // Comments
-    // ===========================
+    pragma_directive: $ => seq(
+      '!pragma',
+      field('name', $.identifier),
+      field('value', optional($.directive_value))
+    ),
+
+    include_directive: $ => seq(
+      '!include',
+      field('path', $.string)
+    ),
+
+    directive_text: $ => /[^\n]+/,
+    directive_value: $ => /[^\n]+/,
+
+    // ============= Partitions =============
+
+    partition_statement: $ => seq(
+      'partition',
+      field('name', optional($.string)),
+      optional($.color_spec),
+      '{',
+      repeat($._statement),
+      '}'
+    ),
+
+    color_spec: $ => seq(
+      '#',
+      field('color', /[A-Fa-f0-9]{3,8}|\w+/)
+    ),
+
+    // ============= Notes =============
+
+    note_statement: $ => choice(
+      $.inline_note,
+      $.multiline_note,
+      $.floating_note
+    ),
+
+    inline_note: $ => seq(
+      'note',
+      field('position', $.note_position),
+      ':',
+      field('content', $.note_text)
+    ),
+
+    multiline_note: $ => seq(
+      'note',
+      field('position', $.note_position),
+      $.content_start,
+      field('content', repeat($.note_content_line)),
+      $.content_end,
+      'end',
+      'note'
+    ),
+
+    floating_note: $ => seq(
+      'note',
+      choice(
+        seq('"', field('content', /[^"]+/), '"'),
+        seq(
+          'as',
+          field('id', $.identifier),
+          $.content_start,
+          field('content', repeat($.note_content_line)),
+          $.content_end,
+          'end',
+          'note'
+        )
+      )
+    ),
+
+    note_position: $ => choice(
+      'left',
+      'right',
+      'top',
+      'bottom',
+      seq('over', field('target', $.identifier))
+    ),
+
+    note_text: $ => /[^\n]+/,
+
+    // ============= Common Elements =============
+
+    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+
+    string: $ => choice(
+      seq('"', /[^"]*/, '"'),
+      seq("'", /[^']*/, "'")
+    ),
 
     comment: $ => choice(
       $.line_comment,
       $.block_comment
     ),
 
-    line_comment: $ => token(seq(
+    line_comment: $ => seq(
       "'",
-      /[^\n]*/
-    )),
+      /.*/
+    ),
 
-    block_comment: $ => token(seq(
+    block_comment: $ => seq(
       "/'",
-      repeat(choice(
-        /[^*]/,
-        /\*[^/]/
-      )),
+      /[^/]*/,
       "'/"
-    )),
-
-    // ===========================
-    // Basic Tokens
-    // ===========================
-
-    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
-
-    quoted_identifier: $ => seq(
-      '"',
-      /[^"]+/,
-      '"'
     ),
 
-    text_line: $ => /[^\n;]+/,
-
-    // Note content line: any line of text (preprocessor ensures boundaries with markers)
-    // This is now a simple regex instead of external token
-    note_content_line: $ => /[^\n]+/,
-
-    branch_label: $ => /[^)\n]+/,
-
-    // Helper for repeat label - must be on same line as 'repeat'
-    // token.immediate prevents any whitespace before the pattern
-    _repeat_label_content: $ => token.immediate(seq(/[ \t]*/, ':', /[^\n]+/)),
-
-    number: $ => /\d+/,
-
-    string: $ => choice(
-      seq('"', repeat(choice(/[^"\\]/, /\\./)), '"'),
-      seq("'", repeat(choice(/[^'\\]/, /\\./)), "'")
-    ),
+    _whitespace: $ => /\s+/
   }
 });

@@ -1,8 +1,3 @@
-# Tree-sitter generated files
-src/parser.c
-src/grammar.json
-src/node-types.json
-
 # Build artifacts
 build/
 *.node
@@ -10,6 +5,9 @@ build/
 *.obj
 *.a
 *.lib
+*.exp
+*.pdb
+*.ilk
 
 # Node.js
 node_modules/

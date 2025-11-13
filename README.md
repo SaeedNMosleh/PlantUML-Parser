@@ -12,22 +12,33 @@ A [tree-sitter](https://tree-sitter.github.io/) grammar for PlantUML, providing 
 
 ## Current Status
 
-### Phase 1: Activity Diagrams ✅
+### Phase 1: Activity Diagrams (In Progress)
 
-The parser currently supports:
+**What Works:**
+- ✅ Parser generation (`npm run generate`)
+- ✅ Native binding compilation (`npm run build`)
+- ✅ Grammar definition with preprocessing support
+- ✅ Test corpus (35+ test cases for activity diagrams)
 
-- ✅ Basic activity nodes (`:label;`)
-- ✅ Start and stop nodes
-- ✅ Decision nodes (if-then-else, elseif)
-- ✅ Loops (while, repeat-while)
-- ✅ Partitions with colors
-- ✅ Swimlanes
-- ✅ Fork and join nodes
-- ✅ Flow arrows with labels
-- ✅ Comments (line and block)
-- ✅ Common directives (title, note, skinparam)
+**What's Blocked:**
+- ⚠️ **Runtime parsing** - Tree-sitter binding compatibility issue
+- ⚠️ The binding loads but tree-sitter rejects the language object
+- ⚠️ Error: "Invalid language object" when calling `parser.setLanguage()`
+- ⚠️ This blocks all actual parsing functionality
 
-See [ROADMAP.md](./ROADMAP.md) for the full list of planned diagram types.
+**Grammar Coverage (once binding issue is fixed):**
+- Basic activity nodes (`:label;`)
+- Start and stop nodes
+- Decision nodes (if-then-else, elseif)
+- Loops (while, repeat-while)
+- Partitions with colors
+- Swimlanes
+- Fork and join nodes
+- Flow arrows with labels
+- Comments (line and block)
+- Common directives (title, note, skinparam)
+
+See [ROADMAP.md](./ROADMAP.md) for planned diagram types and [specification/README.md](./specification/README.md) for detailed technical information.
 
 ## Installation
 
@@ -84,14 +95,16 @@ npm run build
 
 ## Usage
 
-### Node.js
+**Note:** Runtime parsing is currently blocked by a tree-sitter binding compatibility issue. The examples below show the intended usage once the issue is resolved.
+
+### Node.js (Intended Usage)
 
 ```javascript
 const Parser = require('tree-sitter');
 const PlantUML = require('tree-sitter-plantuml');
 
 const parser = new Parser();
-parser.setLanguage(PlantUML);
+parser.setLanguage(PlantUML.language); // Currently fails with "Invalid language object"
 
 const sourceCode = `
 @startuml
@@ -174,19 +187,26 @@ tree-sitter parse examples/activity.puml --debug
 PlantUML-Parser/
 ├── grammar.js              # Grammar definition (edit this)
 ├── src/
+│   ├── scanner.c          # External scanner for context-sensitive tokens
+│   ├── preprocessor.js    # Preprocessor for resolving PlantUML ambiguities
 │   ├── parser.c           # Generated parser (do not edit)
 │   ├── node-types.json    # Generated node types (do not edit)
 │   └── grammar.json       # Generated grammar metadata (do not edit)
 ├── queries/
-│   ├── highlights.scm     # Syntax highlighting
-│   ├── folds.scm         # Code folding
-│   └── tags.scm          # Symbol extraction
+│   ├── highlights.scm     # Syntax highlighting rules
+│   ├── folds.scm          # Code folding rules
+│   └── tags.scm           # Symbol extraction rules
 ├── test/
-│   └── corpus/           # Test cases
-│       └── activity/     # Activity diagram tests
+│   ├── unit/              # Unit tests
+│   └── corpus/            # Tree-sitter corpus tests
+│       └── activity/      # Activity diagram tests (35+ tests)
+├── scripts/
+│   ├── preprocess-tests.js    # Automate test preprocessing
+│   └── validate-plantuml.js   # Validate against PlantUML server
 ├── bindings/
-│   └── node/            # Node.js bindings
-├── specification/       # Detailed specification
+│   └── node/              # Node.js bindings
+├── specification/         # Detailed specification and architecture
+├── examples/              # Example PlantUML files
 └── package.json
 ```
 
@@ -313,9 +333,16 @@ documents.onDidChangeContent(change => {
 
 Contributions are welcome! Please see the [specification](./specification/README.md) for detailed grammar rules and architecture.
 
+### Current Priority
+
+**Critical Issue**: Tree-sitter binding compatibility needs to be resolved before further development. The binding compiles successfully but is rejected by tree-sitter at runtime. Help with debugging this issue would be greatly appreciated.
+
 ### Development Phases
 
-1. **Phase 1** (Current): Activity Diagrams ✅
+1. **Phase 1** (In Progress): Activity Diagrams
+   - Grammar: Complete
+   - Tests: 35+ corpus tests ready
+   - **Blocker**: Runtime binding issue
 2. **Phase 2**: Sequence Diagrams
 3. **Phase 3**: Class Diagrams
 4. **Phase 4**: State Diagrams
@@ -341,5 +368,6 @@ MIT
 
 ---
 
-**Version**: 0.1.0 (Phase 1 - Activity Diagrams)
-**Last Updated**: 2025-11-07
+**Version**: 0.1.0-dev (Phase 1 In Progress)
+**Status**: Development - Runtime parsing blocked by binding issue
+**Last Updated**: 2025-11-13
