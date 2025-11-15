@@ -154,6 +154,248 @@ const result = parser.parseNormalized(normalizedSource);
 
 See [specification/api-reference.md](./specification/api-reference.md) for complete API documentation.
 
+## Browser Usage
+
+The parser supports browser environments via **WebAssembly (WASM)**. The two-pass architecture makes it especially powerful for browsers:
+- **Pass 1 (Normalizer)**: Pure JavaScript, runs natively in browsers (no WASM needed)
+- **Pass 2 (Parser)**: Tree-sitter WASM for full parsing
+
+### Quick Start (Browser)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/web-tree-sitter@0.22.6"></script>
+</head>
+<body>
+  <script type="module">
+    // Import the WASM version
+    import { createParser } from './node_modules/tree-sitter-plantuml/bindings/web/index.js';
+
+    // Initialize parser with WASM
+    const parser = await createParser({
+      wasmPath: './node_modules/tree-sitter-plantuml/tree-sitter-plantuml.wasm'
+    });
+
+    // Parse PlantUML
+    const source = `@startuml
+start
+:Task;
+stop
+@enduml`;
+
+    const result = parser.parse(source);
+    console.log('AST:', result.tree.rootNode.toString());
+    console.log('Normalized:', result.normalized);
+  </script>
+</body>
+</html>
+```
+
+### Installation for Browser Projects
+
+```bash
+npm install tree-sitter-plantuml web-tree-sitter
+```
+
+### Usage with Module Bundlers
+
+#### Vite
+
+```javascript
+import { createParser } from 'tree-sitter-plantuml/wasm';
+import wasmUrl from 'tree-sitter-plantuml/tree-sitter-plantuml.wasm?url';
+
+// Initialize parser
+const parser = await createParser({ wasmPath: wasmUrl });
+
+// Parse PlantUML
+const result = parser.parse(plantUMLSource);
+```
+
+**vite.config.js:**
+```javascript
+export default {
+  assetsInclude: ['**/*.wasm']
+}
+```
+
+#### Webpack
+
+```javascript
+import { createParser } from 'tree-sitter-plantuml/wasm';
+import wasmUrl from 'tree-sitter-plantuml/tree-sitter-plantuml.wasm';
+
+const parser = await createParser({ wasmPath: wasmUrl });
+const result = parser.parse(source);
+```
+
+**webpack.config.js:**
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.wasm$/,
+        type: 'asset/resource'
+      }
+    ]
+  }
+};
+```
+
+#### Rollup
+
+```javascript
+import { createParser } from 'tree-sitter-plantuml/wasm';
+
+const parser = await createParser({
+  wasmPath: '/path/to/tree-sitter-plantuml.wasm'
+});
+```
+
+**rollup.config.js:**
+```javascript
+export default {
+  plugins: [
+    copy({
+      targets: [
+        {
+          src: 'node_modules/tree-sitter-plantuml/*.wasm',
+          dest: 'dist'
+        }
+      ]
+    })
+  ]
+};
+```
+
+### Normalizer Only (Lightweight - No WASM)
+
+If you only need normalization without full parsing (e.g., for preprocessing), you can use the normalizer standalone:
+
+```javascript
+import { PlantUMLNormalizer } from 'tree-sitter-plantuml/normalizer';
+
+const normalizer = new PlantUMLNormalizer({
+  preserveComments: true,
+  preserveWhitespace: false
+});
+
+const source = `@startuml
+(*)
+:Task;
+(*)
+@enduml`;
+
+const { normalized, metadata } = normalizer.normalize(source);
+console.log('Normalized:', normalized);
+// Output:
+// @startuml
+// start
+// :Task;
+// stop
+// @enduml
+
+console.log('Metadata:', metadata);
+// { diagramType: 'activity', nodeCount: 3, hasCircleNodes: true, ... }
+```
+
+**Benefits:**
+- No WASM loading (faster initialization)
+- Smaller bundle size (~10KB vs ~30KB)
+- Perfect for preprocessing pipelines
+
+### API Reference (Browser)
+
+#### createParser(options)
+
+Convenience function to create and initialize parser in one step.
+
+```javascript
+const parser = await createParser({
+  wasmPath: '/path/to/tree-sitter-plantuml.wasm',  // Required in some bundlers
+  debug: false,                                      // Enable debug logging
+  preserveComments: true,                           // Keep comments during normalization
+  preserveWhitespace: false,                        // Preserve original whitespace
+  skipNormalization: false                          // Skip normalization step
+});
+```
+
+#### PlantUMLParserWeb
+
+Manual initialization (for more control):
+
+```javascript
+import { PlantUMLParserWeb } from 'tree-sitter-plantuml/wasm';
+
+const parser = new PlantUMLParserWeb(options);
+await parser.init('/path/to/tree-sitter-plantuml.wasm');
+
+const result = parser.parse(source);
+```
+
+**Methods:**
+- `async init(wasmPath)` - Initialize with WASM (must call before parsing)
+- `parse(source, options)` - Parse PlantUML (returns `{ tree, normalized, metadata }`)
+- `normalize(source)` - Normalize only (no WASM needed)
+- `parseNormalized(source)` - Parse already-normalized PlantUML
+- `isInitialized()` - Check if WASM is loaded
+
+### Important Notes
+
+1. **WASM File Serving**: Ensure `.wasm` files are served with the correct MIME type:
+   ```
+   Content-Type: application/wasm
+   ```
+
+2. **Async Initialization**: Always `await` the parser initialization:
+   ```javascript
+   const parser = await createParser({ wasmPath });
+   ```
+
+3. **CORS**: If loading WASM from a CDN, ensure CORS headers are set correctly.
+
+4. **Bundle Size**:
+   - Full parser (WASM): ~30KB
+   - Normalizer only: ~10KB
+   - web-tree-sitter runtime: ~100KB
+
+5. **Node.js vs Browser**:
+   - Node.js: Use `require('tree-sitter-plantuml')` (native, faster)
+   - Browser: Use `import ... from 'tree-sitter-plantuml/wasm'` (WASM)
+
+### TypeScript Support
+
+Full TypeScript definitions are included:
+
+```typescript
+import { createParser, PlantUMLParserWeb, PlantUMLNormalizer } from 'tree-sitter-plantuml/wasm';
+import type { ParseResult, NormalizationResult, PlantUMLParserOptions } from 'tree-sitter-plantuml/wasm';
+
+const parser = await createParser({
+  wasmPath: '/tree-sitter-plantuml.wasm',
+  debug: true
+});
+
+const result: ParseResult = parser.parse(source);
+```
+
+### Building WASM Yourself
+
+To rebuild the WASM file:
+
+```bash
+# Requires Docker or Emscripten
+npm run build:wasm
+
+# Or build both native and WASM
+npm run build:all
+```
+
+The WASM file will be generated at `tree-sitter-plantuml.wasm` (~29KB).
+
 ## Testing
 
 ### Run All Tests with Validation
