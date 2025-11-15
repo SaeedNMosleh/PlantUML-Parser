@@ -16,14 +16,12 @@ end fork
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (join_node))
     (enduml_directive)))
@@ -45,25 +43,22 @@ end split
   (diagram
     (startuml_directive)
     (activity_element
-      (fork_node))
+      (split_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
-      (fork_node))
-    (activity_element
-      (activity_node
-        label: (activity_label
-          (text_line))))
-    (activity_element
-      (fork_node))
+      (split_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
-      (join_node))
+      (split_node))
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (activity_element
+      (split_join_node))
     (enduml_directive)))
 
 ===========================
@@ -90,22 +85,18 @@ stop
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (join_node))
     (activity_element

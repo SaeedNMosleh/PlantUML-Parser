@@ -10,8 +10,7 @@ Simple activity node
     (startuml_directive)
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (enduml_directive)))
 
 ===========================
@@ -28,16 +27,13 @@ Multiple activity nodes
     (startuml_directive)
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (enduml_directive)))
 
 ===========================
@@ -45,7 +41,7 @@ Activity node with flow arrow
 ===========================
 @startuml
 :Step 1;
--> Next step;
+->:Next step
 :Step 2;
 @enduml
 ----------------------------
@@ -54,17 +50,14 @@ Activity node with flow arrow
     (startuml_directive)
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (flow_arrow
-        (arrow
-          type: (arrow_type)
-          label: (arrow_label))))
+        type: (arrow_type)
+        label: (arrow_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (enduml_directive)))
 
 ===========================
@@ -83,8 +76,7 @@ stop
       (start_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (stop_node))
     (enduml_directive)))
@@ -105,8 +97,7 @@ stop
       (start_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (stop_node))
     (enduml_directive)))
@@ -117,9 +108,9 @@ Simple flow with arrows
 @startuml
 start
 :Initialize;
-->;
+->
 :Process;
-->;
+->
 :Finalize;
 stop
 @enduml
@@ -131,24 +122,19 @@ stop
       (start_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (flow_arrow
-        (arrow
-          type: (arrow_type))))
+        type: (arrow_type)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (flow_arrow
-        (arrow
-          type: (arrow_type))))
+        type: (arrow_type)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (stop_node))
     (enduml_directive)))

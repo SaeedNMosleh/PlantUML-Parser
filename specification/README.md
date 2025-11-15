@@ -1,269 +1,119 @@
 # PlantUML Parser Specification
 
-## Overview
+Complete technical specification for the tree-sitter-plantuml parser implementing a two-pass architecture (Normalizer + Grammar) for handling PlantUML's ambiguous syntax.
 
-This specification defines a **tree-sitter-based parser for PlantUML**, designed as a standalone, reusable component that can be consumed by diagram editors, IDEs, and other tools requiring PlantUML source code analysis.
+## Quick Navigation
 
-## Current Implementation Status
+### Core Documentation
+- **[Architecture](./architecture.md)** - Two-pass parser design and system overview
+- **[Normalizer](./normalizer.md)** - Pass 1: Normalization rules and API
+- **[Grammar](./grammar.md)** - Pass 2: Grammar specification for activity diagrams
+- **[API Reference](./api-reference.md)** - Complete PlantUMLParser and Normalizer API
 
-**Last Updated**: 2025-11-13
+### Development Guides
+- **[Contributing](./CONTRIBUTING.md)** - Development principles and guidelines
+- **[Testing Guide](./testing-guide.md)** - Testing strategy and corpus test format
+- **[Troubleshooting](./troubleshooting.md)** - Common issues and solutions
 
-### What's Working
-- ✅ **Parser Generation**: Grammar compiles successfully with tree-sitter
-- ✅ **Native Binding**: C/C++ binding builds without errors
-- ✅ **Grammar Definition**: Complete grammar for Activity diagrams (Phase 1)
-- ✅ **Test Suite**: 35+ corpus tests ready for activity diagrams
-- ✅ **Preprocessor**: Resolves PlantUML ambiguities (e.g., `(*)` as START vs STOP)
-- ✅ **External Scanner**: Context-sensitive token recognition
+### Planning & Integration
+- **[Roadmap](./ROADMAP.md)** - Future diagram types (Phases 2-6)
+- **[Integration Guide](./integration-guide.md)** - npm package, VSCode, LSP integration
+- **[Migration Guide](./migration-v1-to-v2.md)** - Upgrading from v1.x to v2.0
 
-### Critical Blocker
-- ❌ **Runtime Parsing**: Tree-sitter binding compatibility issue
-  - **Symptom**: Binding loads but is rejected with "Invalid language object"
-  - **Impact**: Cannot parse any PlantUML code at runtime
-  - **Affects**: All diagram types, all functionality
-  - **Status**: Under investigation
-
-### Architecture Decision
-The current implementation uses a **preprocessing approach**:
-1. **Normalizer**: Standardizes syntax variations
-2. **Semantic Preprocessor**: Resolves PlantUML's context-dependent ambiguities
-3. **Scanner**: Recognizes preprocessing markers
-4. **Grammar**: Defines structure without semantic ambiguities
-
-This approach acknowledges that PlantUML's ambiguous syntax (same tokens mean different things in different contexts) cannot be handled by traditional tree-sitter patterns alone.
-
-## Project Vision
-
-Create a high-performance, incremental PlantUML parser that:
-
-- **Parses PlantUML source code** into Abstract Syntax Trees (AST)
-- **Supports incremental parsing** with sub-millisecond updates for typical edits
-- **Handles syntax errors gracefully** through automatic error recovery
-- **Preserves all source information** including whitespace and comments for lossless round-trips
-- **Provides rich queries** for syntax highlighting, code folding, and symbol extraction
-- **Integrates seamlessly** with Language Server Protocol (LSP) implementations
-
-## Why Tree-sitter?
-
-Tree-sitter was selected after evaluating multiple parsing technologies based on these critical requirements:
-
-| Feature | Tree-sitter | ANTLR4 | Peggy | Langium |
-|---------|------------|--------|-------|---------|
-| Incremental parsing | ✅ <1ms | ❌ Full reparse | ❌ Full reparse | ⚠️ Limited |
-| Error recovery | ✅ Automatic | ⚠️ Manual | ⚠️ Manual | ✅ Good |
-| Lossless parsing | ✅ Full CST | ❌ AST only | ❌ AST only | ⚠️ Partial |
-| IDE integration | ✅ Native | ⚠️ Adapters needed | ⚠️ Custom | ✅ Built-in |
-| Ecosystem maturity | ✅ GitHub, VSCode | ✅ Mature | ⚠️ Limited | ⚠️ Growing |
-
-**Key advantages:**
-
-- **Performance**: Incremental parsing under 1 millisecond for typical edits enables real-time feedback
-- **Resilience**: Automatic error recovery allows continuous parsing even with syntax errors
-- **Completeness**: Concrete syntax trees preserve all source information for round-trip conversion
-- **Proven**: Used by GitHub for code navigation, VSCode for syntax highlighting, and Neovim for advanced editing
-
-## Architecture
-
-The parser consists of:
+## Architecture Overview
 
 ```
-tree-sitter-plantuml/
-├── grammar.js              # Declarative grammar definition
-├── src/
-│   ├── parser.c            # Generated parser (auto-generated, do not edit)
-│   ├── scanner.c           # Custom lexer (if needed for complex tokens)
-│   └── node-types.json     # Generated AST node type definitions
-├── queries/
-│   ├── highlights.scm      # Syntax highlighting queries
-│   ├── folds.scm          # Code folding queries
-│   ├── tags.scm           # Symbol extraction queries
-│   └── locals.scm         # Scope analysis queries
-├── test/
-│   └── corpus/            # Corpus-based tests
-│       ├── activity.txt
-│       ├── sequence.txt
-│       ├── class.txt
-│       └── ...
-└── bindings/
-    ├── node/              # Node.js bindings
-    └── rust/              # Rust bindings (future)
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────┐
+│ PlantUML Source │ --> │    Normalizer    │ --> │   Grammar   │ --> AST
+│   (ambiguous)   │     │ (JavaScript/TS)  │     │(tree-sitter)│
+└─────────────────┘     └──────────────────┘     └─────────────┘
+                              Pass 1                   Pass 2
 ```
 
-## Specification Structure
+### Pass 1: Normalizer
+- **Purpose**: Transform ambiguous PlantUML into unambiguous normalized form
+- **Implementation**: Pure JavaScript (`src/normalizer/`)
+- **Rules**: 7 transformation rules for activity diagrams
+- **Output**: Clean, unambiguous PlantUML text
 
-This specification is organized into focused documents:
+### Pass 2: Grammar
+- **Purpose**: Parse normalized PlantUML into Abstract Syntax Tree
+- **Implementation**: Tree-sitter grammar (`grammar.js`)
+- **Features**: No external scanner, no conflicts, simple rules
+- **Output**: Tree-sitter AST with full source locations
 
-### [Architecture](./architecture/README.md)
-- Parser system design
-- AST structure and node types
-- Integration patterns
-- Performance considerations
+## Current Status
 
-### [Grammar](./grammar/README.md)
-- Grammar rules for each diagram type
-- Token definitions and precedence
-- Error recovery strategies
-- Incremental parsing optimizations
+**Phase 1: Activity Diagrams** ✅ **Complete**
+- **Test Success**: 100% (136/136 tests passing)
+- **PlantUML Validation**: 100% (30/30 tests)
+- **Grammar Tests**: 100% (30/30 tests)
+- **Normalizer Tests**: 100% (59/59 tests)
+- **Integration Tests**: 100% (17/17 tests)
 
-### [Testing](./testing/README.md)
-- Corpus test organization
-- Coverage requirements
-- Error recovery test cases
-- Performance benchmarks
+**Next**: Phase 2 - Sequence Diagrams (planned)
 
-### [Integration](./integration/README.md)
-- npm package structure
-- Language Server Protocol integration
-- PlantEdit integration patterns
-- IDE plugin support
+## Key Design Principles
 
-## Development Phases
+1. **Zero Tolerance**: 100% test success rate required
+2. **PlantUML is Truth**: All syntax validated against PlantUML server
+3. **Normalizer Handles Complexity**: Grammar stays simple
+4. **Two-Pass Separation**: Clear separation of concerns
+5. **Integration First**: End-to-end tests are primary success metric
 
-The parser will be developed incrementally, prioritizing diagram types by usage frequency and complexity:
+## Document Organization
 
-### Phase 1: Foundation (Weeks 1-2)
-- **Activity Diagrams**: Basic nodes, decisions, partitions
-- **Core Infrastructure**: Build system, test framework, CI/CD
-- **Deliverable**: Parse 80%+ of activity diagrams with 20+ corpus tests
+### By Topic
 
-### Phase 2: Interactions (Weeks 3-4)
-- **Sequence Diagrams**: Participants, messages, groups, activation
-- **Refinement**: Error recovery improvements, performance optimization
-- **Deliverable**: Parse 80%+ of sequence diagrams with 30+ corpus tests
+**Architecture & Design:**
+- [Architecture](./architecture.md)
+- [Normalizer](./normalizer.md)
+- [Grammar](./grammar.md)
 
-### Phase 3: Structure (Weeks 5-6)
-- **Class Diagrams**: Classes, interfaces, relationships, packages
-- **Enhancement**: Advanced queries for code navigation
-- **Deliverable**: Parse 80%+ of class diagrams with 40+ corpus tests
+**Usage & API:**
+- [API Reference](./api-reference.md)
+- [Integration Guide](./integration-guide.md)
 
-### Phase 4: State Machines (Weeks 7-8)
-- **State Diagrams**: States, transitions, composite states, history
-- **Maturation**: Performance tuning, comprehensive error messages
-- **Deliverable**: Parse 80%+ of state diagrams with 30+ corpus tests
+**Development:**
+- [Contributing](./CONTRIBUTING.md)
+- [Testing Guide](./testing-guide.md)
+- [Troubleshooting](./troubleshooting.md)
 
-### Phase 5: Extended Types (Weeks 9-12)
-- **Component Diagrams**: Components, interfaces, dependencies
-- **Deployment Diagrams**: Nodes, artifacts, connections
-- **Use Case Diagrams**: Actors, use cases, relationships
-- **Deliverable**: 95%+ parse success across all diagram types
+**Planning:**
+- [Roadmap](./ROADMAP.md)
+- [Migration Guide](./migration-v1-to-v2.md)
 
-### Phase 6: Production Ready (Weeks 13-16)
-- **Quality**: 100+ total corpus tests, 95%+ code coverage
-- **Performance**: <100ms for 10K lines, <5ms incremental updates
-- **Documentation**: Complete API docs, integration guides
-- **Release**: npm package v1.0.0, GitHub repository with MIT license
+### By Audience
 
-## Success Metrics
+**For Users:**
+- Start with [API Reference](./api-reference.md)
+- Then [Integration Guide](./integration-guide.md)
+- Check [Troubleshooting](./troubleshooting.md) if issues arise
 
-### Functional Requirements
-- ✅ Parse 95%+ of real-world PlantUML diagrams across all major types
-- ✅ Support all standard PlantUML syntax elements per diagram type
-- ✅ Gracefully handle syntax errors without failing parse
-- ✅ Preserve source locations for every AST node
+**For Contributors:**
+- Start with [Contributing](./CONTRIBUTING.md)
+- Read [Architecture](./architecture.md)
+- Follow [Testing Guide](./testing-guide.md)
+- Check [Roadmap](./ROADMAP.md) for next features
 
-### Performance Requirements
-- ✅ Initial parse: <100ms for 10,000-line files
-- ✅ Incremental update: <5ms for typical single-line edits
-- ✅ Memory overhead: <10MB for standard 1,000-line documents
-- ✅ Query execution: <10ms for syntax highlighting queries
+**For Migrators:**
+- Read [Migration Guide](./migration-v1-to-v2.md)
+- Check [API Reference](./api-reference.md) for new API
+- Review [Architecture](./architecture.md) for design changes
 
-### Quality Requirements
-- ✅ 100+ passing corpus tests covering all diagram types
-- ✅ Error recovery tests for common syntax mistakes
-- ✅ 95%+ code coverage in grammar rules
-- ✅ Zero crashes on malformed input
+## Getting Help
 
-### Integration Requirements
-- ✅ npm package with TypeScript type definitions
-- ✅ Language Server Protocol compatibility
-- ✅ VSCode extension support
-- ✅ PlantEdit integration with source mapping
+- **Issues**: [GitHub Issues](https://github.com/SaeedNMosleh/PlantUML-Parser/issues)
+- **Troubleshooting**: [troubleshooting.md](./troubleshooting.md)
+- **Questions**: Open a discussion on GitHub
 
-## Integration with PlantEdit
+## Version Information
 
-The parser integrates with PlantEdit (and other consumers) through:
-
-1. **npm Package**: Install via `npm install tree-sitter-plantuml`
-2. **AST Access**: Tree-sitter Node API for traversing syntax trees
-3. **Incremental Updates**: Only re-parse edited regions for performance
-4. **Query Support**: Extract specific diagram elements (e.g., all class names)
-5. **Source Mapping**: Link AST nodes back to exact source locations
-6. **Error Information**: Detailed syntax error messages with positions
-
-**Example integration:**
-
-```typescript
-import Parser from 'tree-sitter';
-import PlantUML from 'tree-sitter-plantuml';
-
-const parser = new Parser();
-parser.setLanguage(PlantUML);
-
-const sourceCode = `
-@startuml
-class User {
-  +name: string
-  +email: string
-}
-@enduml
-`;
-
-const tree = parser.parse(sourceCode);
-const rootNode = tree.rootNode;
-
-// Navigate AST
-console.log(rootNode.toString());
-
-// Incremental update
-const newCode = sourceCode.replace('User', 'Customer');
-const newTree = parser.parse(newCode, tree);  // Fast incremental parse
-```
-
-## Technology Stack
-
-### Core
-- **Tree-sitter CLI**: Grammar compilation and test runner
-- **C/C++**: Generated parser code (performance-critical)
-- **Node.js**: Primary runtime for grammar development and testing
-
-### Development
-- **TypeScript**: Type definitions and integration examples
-- **Jest**: Unit testing for grammar rules
-- **GitHub Actions**: CI/CD pipeline
-- **npm**: Package distribution
-
-### Quality
-- **tree-sitter test**: Corpus-based testing framework
-- **tree-sitter parse**: Manual testing and debugging
-- **tree-sitter highlight**: Syntax highlighting validation
-- **Benchmark suite**: Performance regression testing
-
-## Repository Structure
-
-This parser will be developed as an independent open-source project:
-
-- **Repository**: `tree-sitter-plantuml` (separate from PlantEdit)
-- **License**: MIT (compatible with tree-sitter ecosystem)
-- **Package**: `@plantuml/tree-sitter-plantuml` on npm
-- **Community**: Public issue tracker, contribution guidelines, documentation
-
-## Next Steps
-
-1. **Read the detailed specifications** in the subdirectories
-2. **Review the architecture document** to understand system design
-3. **Study the grammar specification** for implementation details
-4. **Examine the testing strategy** for quality assurance approach
-5. **Explore integration patterns** for consuming the parser
-
-## References
-
-- [Tree-sitter Documentation](https://tree-sitter.github.io/tree-sitter/)
-- [PlantUML Language Reference](https://plantuml.com/)
-- [PlantEdit System Architecture](https://github.com/SaeedNMosleh/PlantEdit/tree/main/specification)
-- [Tree-sitter Parsers Gallery](https://github.com/tree-sitter)
+- **Current Version**: 2.0.0
+- **Architecture**: Two-Pass (Normalizer + Grammar)
+- **Status**: Phase 1 Complete
+- **Last Updated**: 2025-11-15
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-07
-**Status**: Draft Specification
+**Main Repository**: [PlantUML-Parser](https://github.com/SaeedNMosleh/PlantUML-Parser)

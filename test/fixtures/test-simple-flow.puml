@@ -1,0 +1,9 @@
+@startuml
+start
+:Initialize;
+->
+:Process;
+->
+:Finalize;
+stop
+@enduml

@@ -1,15 +1,17 @@
 {
   "name": "tree-sitter-plantuml",
-  "version": "0.1.0",
-  "description": "PlantUML grammar for tree-sitter",
-  "main": "bindings/node",
+  "version": "2.0.0",
+  "description": "PlantUML grammar for tree-sitter - Two-Pass Architecture",
+  "main": "index.js",
   "types": "bindings/node/index.d.ts",
   "keywords": [
     "tree-sitter",
     "plantuml",
     "parser",
     "uml",
-    "diagram"
+    "diagram",
+    "normalizer",
+    "activity-diagram"
   ],
   "author": "PlantUML Parser Team",
   "license": "MIT",
@@ -18,11 +20,22 @@
     "url": "https://github.com/SaeedNMosleh/PlantUML-Parser"
   },
   "scripts": {
-    "test": "tree-sitter test",
+    "test": "npm run test:normalizer && npm run test:parser",
+    "test:normalizer": "jest test/normalizer --coverage",
+    "test:parser": "tree-sitter test",
+    "test:integration": "jest test/integration",
+    "test:all": "npm run validate && npm test && npm run test:integration",
+    "test:100": "npm run test:all && echo '✅ 100% Success Rate Achieved!'",
     "generate": "tree-sitter generate",
     "parse": "tree-sitter parse",
-    "build": "node-gyp rebuild",
-    "install": "node-gyp-build || echo 'Skipping build - run npm run generate first'"
+    "build": "npm run generate && node-gyp rebuild",
+    "clean": "rm -rf build coverage *.obj *.backup",
+    "rebuild": "npm run clean && npm run build",
+    "install": "node-gyp-build || echo 'Skipping build - run npm run build first'",
+    "validate": "node scripts/validate-plantuml.js",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:validate": "npm run docker:up && npm run validate"
   },
   "dependencies": {
     "node-addon-api": "^7.0.0",
@@ -31,7 +44,10 @@
     "tree-sitter-cli": "^0.20.8"
   },
   "devDependencies": {
-    "node-gyp": "^10.0.0"
+    "node-gyp": "^10.0.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "c8": "^9.0.0"
   },
   "tree-sitter": [
     {
@@ -50,6 +66,7 @@
     "binding.gyp",
     "src",
     "queries",
-    "bindings"
+    "bindings",
+    "index.js"
   ]
 }

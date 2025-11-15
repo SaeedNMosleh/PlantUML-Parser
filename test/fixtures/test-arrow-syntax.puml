@@ -1,0 +1,5 @@
+@startuml
+:Step 1;
+->:Next step
+:Step 2;
+@enduml

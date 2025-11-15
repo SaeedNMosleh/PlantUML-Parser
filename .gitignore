@@ -44,3 +44,11 @@ examples/*.png
 # OS
 Thumbs.db
 .claude
+# Test output directories
+test/normalizer/.output/
+test/integration/.output/
+
+# Backup files from migration
+*.backup
+*.bak
+*.tmp

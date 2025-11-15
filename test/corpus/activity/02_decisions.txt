@@ -14,16 +14,14 @@ endif
     (startuml_directive)
     (activity_element
       (decision_node
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (else_branch
           (activity_element
             (activity_node
-              label: (activity_label
-                (text_line)))))))
+              label: (activity_label))))))
     (enduml_directive)))
 
 ===========================
@@ -40,11 +38,10 @@ endif
     (startuml_directive)
     (activity_element
       (decision_node
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (enduml_directive)))
 
 ===========================
@@ -65,22 +62,19 @@ endif
     (startuml_directive)
     (activity_element
       (decision_node
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (elseif_branch
-          condition: (condition_expression)
+          condition: (condition)
           (activity_element
             (activity_node
-              label: (activity_label
-                (text_line)))))
+              label: (activity_label))))
         (else_branch
           (activity_element
             (activity_node
-              label: (activity_label
-                (text_line)))))))
+              label: (activity_label))))))
     (enduml_directive)))
 
 ===========================
@@ -99,16 +93,14 @@ endif
     (startuml_directive)
     (activity_element
       (decision_node
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (else_branch
           (activity_element
             (activity_node
-              label: (activity_label
-                (text_line)))))))
+              label: (activity_label))))))
     (enduml_directive)))
 
 ===========================
@@ -129,17 +121,15 @@ endif
     (startuml_directive)
     (activity_element
       (decision_node
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (decision_node
-            condition: (condition_expression)
+            condition: (condition)
             (activity_element
               (activity_node
-                label: (activity_label
-                  (text_line))))))
+                label: (activity_label)))))
         (else_branch
           (activity_element
             (activity_node
-              label: (activity_label
-                (text_line)))))))
+              label: (activity_label))))))
     (enduml_directive)))

@@ -12,11 +12,10 @@ endwhile
     (startuml_directive)
     (activity_element
       (while_loop
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (enduml_directive)))
 
 ===========================
@@ -34,15 +33,13 @@ endwhile
     (startuml_directive)
     (activity_element
       (while_loop
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (enduml_directive)))
 
 ===========================
@@ -61,14 +58,13 @@ endwhile
     (startuml_directive)
     (activity_element
       (while_loop
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (while_loop
-            condition: (condition_expression)
+            condition: (condition)
             (activity_element
               (activity_node
-                label: (activity_label
-                  (text_line))))))))
+                label: (activity_label)))))))
     (enduml_directive)))
 
 ===========================
@@ -87,14 +83,13 @@ endwhile
     (startuml_directive)
     (activity_element
       (while_loop
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (decision_node
-            condition: (condition_expression)
+            condition: (condition)
             (activity_element
               (activity_node
-                label: (activity_label
-                  (text_line))))))))
+                label: (activity_label)))))))
     (enduml_directive)))
 
 ===========================
@@ -111,9 +106,8 @@ endwhile
     (startuml_directive)
     (activity_element
       (while_loop
-        condition: (condition_expression)
+        condition: (condition)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (enduml_directive)))

@@ -23,48 +23,43 @@ endif
 (source_file
   (diagram
     (startuml_directive)
-    (title_directive
-      content: (text_line))
+    (activity_element
+      (title_directive
+        content: (text_content)))
     (activity_element
       (start_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (decision_node
-        condition: (condition_expression)
+        condition: (condition)
         true_label: (branch_label)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (activity_element
           (stop_node))
         (else_branch
           label: (branch_label)
           (activity_element
             (activity_node
-              label: (activity_label
-                (text_line))))
+              label: (activity_label)))
           (activity_element
             (decision_node
-              condition: (condition_expression)
+              condition: (condition)
               true_label: (branch_label)
               (activity_element
                 (activity_node
-                  label: (activity_label
-                    (text_line))))
+                  label: (activity_label)))
               (else_branch
                 label: (branch_label)
                 (activity_element
                   (activity_node
-                    label: (activity_label
-                      (text_line))))
+                    label: (activity_label)))
                 (activity_element
                   (stop_node))))))))
     (enduml_directive)))
@@ -91,37 +86,30 @@ partition "Storage" #LightGreen {
     (startuml_directive)
     (activity_element
       (partition
-        name: (quoted_identifier)
+        name: (string)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (activity_element
       (partition
-        name: (quoted_identifier)
-        (color_spec
-          (color))
+        name: (string)
+        color: (color)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (activity_element
       (partition
-        name: (quoted_identifier)
-        (color_spec
-          (color))
+        name: (string)
+        color: (color)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))))
+            label: (activity_label)))))
     (enduml_directive)))
 
 ===========================
@@ -152,38 +140,31 @@ stop
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (fork_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (join_node))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (stop_node))
     (enduml_directive)))
@@ -212,31 +193,27 @@ stop
       (start_node))
     (activity_element
       (while_loop
-        condition: (condition_expression)
+        condition: (condition)
         label: (branch_label)
         (activity_element
           (activity_node
-            label: (activity_label
-              (text_line))))
+            label: (activity_label)))
         (activity_element
           (decision_node
-            condition: (condition_expression)
+            condition: (condition)
             true_label: (branch_label)
             (activity_element
               (activity_node
-                label: (activity_label
-                  (text_line))))
+                label: (activity_label)))
             (else_branch
               label: (branch_label)
               (activity_element
                 (activity_node
-                  label: (activity_label
-                    (text_line)))))))
+                  label: (activity_label))))))
         end_label: (branch_label)))
     (activity_element
       (activity_node
-        label: (activity_label
-          (text_line))))
+        label: (activity_label)))
     (activity_element
       (stop_node))
     (enduml_directive)))

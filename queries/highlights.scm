@@ -18,15 +18,14 @@
   "endwhile"
   "repeat"
   "fork"
-  "again"
   "split"
   "partition"
   "is"
-  "of"
 ] @keyword
 
 ; Special statements
-(detach_statement) @keyword
+(detach) @keyword
+(kill) @keyword
 
 ; Directives
 [
@@ -52,17 +51,18 @@
 (identifier) @variable
 
 ; Labels and text
-(activity_label (text_line) @string)
+(activity_label) @string
 (arrow_label) @string
-(condition_expression) @string.special
+(condition) @string.special
 (swimlane_name) @string
-(note_content_line) @string
+(note_line) @string
+(text_content) @string
 
 ; Quoted identifiers
-(quoted_identifier) @string.special
+(string) @string.special
 
 ; Colors
 (color) @constant
 
 ; Title content
-(title_directive content: (text_line) @markup.heading)
+(title_directive content: (text_content) @markup.heading)

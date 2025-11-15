@@ -11,10 +11,10 @@
 
 ; Fold loops
 (while_loop) @fold
-(repeat_while) @fold
+(repeat_loop) @fold
 
 ; Fold block comments
 (block_comment) @fold
 
 ; Fold multi-line notes
-(floating_note) @fold
+(note_directive) @fold

@@ -1,11 +1,17 @@
 /**
- * PlantUML Tree-sitter Grammar
+ * PlantUML Tree-sitter Grammar - Simplified Two-Pass Architecture
  *
- * This grammar works with preprocessed PlantUML code that contains
- * disambiguation markers. The preprocessing stage resolves all ambiguities,
- * allowing this grammar to be clean and conflict-free.
+ * This grammar is designed to parse NORMALIZED PlantUML code.
+ * All ambiguities are resolved by the normalizer (Pass 1), allowing this
+ * grammar to be clean, simple, and conflict-free.
  *
- * @file PlantUML grammar for tree-sitter
+ * Key Design Principles:
+ * - NO external scanner (all parsing in grammar rules)
+ * - NO preprocessing markers (normalizer removes ambiguities)
+ * - NO conflicts (normalized input is unambiguous)
+ * - Simple, maintainable rules
+ *
+ * @file PlantUML grammar for tree-sitter (Pass 2 of two-pass parser)
  * @author PlantUML Parser Team
  * @license MIT
  */
@@ -18,185 +24,118 @@ module.exports = grammar({
 
   word: $ => $.identifier,
 
-  // External scanner tokens (from scanner.c)
-  externals: $ => [
-    $.start_marker,       // «START»
-    $.stop_marker,        // «STOP»
-    $.label_marker,       // «LABEL»
-    $.content_start,      // «CONTENT_START»
-    $.content_end,        // «CONTENT_END»
-    $.arrow_label_marker, // «ARROW_LABEL»
-    $.activity_marker,    // «ACTIVITY»
-    $.condition_marker,   // «CONDITION»
-    $.loop_label_marker,  // «LOOP_LABEL»
-    $.note_content_line,  // Multiline note content
-    $.error_sentinel      // Error recovery
-  ],
-
-  // Minimal conflicts for structural ambiguities (not semantic ones)
-  conflicts: $ => [
-    [$.activity_element, $._flow_source],
-    [$.activity_element, $._flow_target],
-    [$.while_loop, $.repeat_loop]
-  ],
-
-  // Precedence rules for clean parsing
-  precedences: $ => [
-    ['arrow_label', 'activity'],
-    ['control_flow', 'statement']
-  ],
-
+  // NO externals - everything is in the grammar
   extras: $ => [
-    /\s/  // Whitespace
+    /\s/,  // Whitespace
+    $.line_comment,
+    $.block_comment
   ],
+
+  // Minimal structural conflicts (unavoidable with current design)
+  conflicts: $ => [],
 
   rules: {
-    // Root rule - changed from source_file to match existing tests
+    // ============= ROOT =============
+
     source_file: $ => repeat($._element),
 
     _element: $ => choice(
       $.diagram,
-      $.comment,
-      $._whitespace
+      $.line_comment,
+      $.block_comment
     ),
 
-    // Diagram structure
+    // ============= DIAGRAM STRUCTURE =============
+
     diagram: $ => seq(
       $.startuml_directive,
       repeat($._statement),
       $.enduml_directive
     ),
 
-    startuml_directive: $ => /@startuml(?:[ \t]+[^ \t\n\r]+)?/,
+    startuml_directive: $ => /@startuml(?:[ \t]+[^\n]*)?/,
     enduml_directive: $ => /@enduml/,
 
-    // Statements
+    // ============= STATEMENTS =============
+
     _statement: $ => choice(
-      $.activity_element,
-      $.title_directive,
-      $.skinparam_directive,
-      $.pragma_directive,
-      $.include_directive,
-      $.note_directive,
-      $.comment,
-      $._whitespace
+      $.activity_element
     ),
 
-    // ============= Activity Diagram Elements =============
-
-    // Activity element wrapper (matches test expectations)
+    // Activity element wrapper (for compatibility with existing tests)
     activity_element: $ => choice(
       $.start_node,
       $.stop_node,
       $.activity_node,
+      $.flow_arrow,
       $.decision_node,
       $.while_loop,
       $.repeat_loop,
+      $.partition,
+      $.swimlane,
       $.fork_node,
       $.join_node,
-      $.partition,
-      $.flow_arrow,
+      $.split_node,
+      $.split_join_node,
+      $.title_directive,
+      $.note_directive,
+      $.skinparam_directive,
       $.detach,
-      $.kill,
-      $.swimlane
+      $.kill
     ),
 
-    start_node: $ => choice(
-      'start',
-      seq(
-        field('marker', $.start_marker),
-        '(*)'
-      )
-    ),
+    // ============= SIMPLE NODES (normalized from (*)) =============
 
-    stop_node: $ => choice(
-      'stop',
-      seq(
-        field('marker', $.stop_marker),
-        '(*)'
-      )
-    ),
+    start_node: $ => 'start',
+    stop_node: $ => 'stop',
 
-    // Activity nodes
+    // ============= ACTIVITY NODES (already normalized) =============
+
     activity_node: $ => seq(
       ':',
       field('label', $.activity_label),
       ';'
     ),
 
-    activity_label: $ => $.text_line,
+    activity_label: $ => /[^;\n]+/,
 
-    text_line: $ => /[^;]+/,
+    // ============= ARROWS (normalized format) =============
 
-    // Flow arrows and labels
-    flow_arrow: $ => prec.left(seq(
-      optional(field('source', $._flow_source)),
-      $.arrow,
-      optional(field('target', $._flow_target)),
-      optional(';')
-    )),
-
-    _flow_source: $ => choice(
-      $.identifier,
-      $.activity_node,
-      $.start_node,
-      $.stop_node
+    flow_arrow: $ => choice(
+      seq(
+        field('type', $.arrow_type),
+        field('label', alias(token.immediate(/:[^\n;]+/), $.arrow_label))
+      ),
+      field('type', $.arrow_type)
     ),
 
-    _flow_target: $ => choice(
+    arrow_endpoint: $ => choice(
       $.identifier,
-      $.activity_node,
-      $.start_node,
-      $.stop_node
-    ),
-
-    arrow: $ => prec.left(seq(
-      field('style', optional($.arrow_style)),
-      field('type', $.arrow_type),
-      field('label', optional($.arrow_label))
-    )),
-
-    arrow_style: $ => choice(
-      '-[', // Colored/styled arrow start
-      '['   // Alternative style
+      'start',
+      'stop'
     ),
 
     arrow_type: $ => choice(
-      /->+/,   // Right arrow (one or more dashes)
-      /<-+/,   // Left arrow
-      /-->+/,  // Long right arrow
-      /<--+/,  // Long left arrow
-      /\.>+/,  // Dotted right arrow
-      /<\.+/,  // Dotted left arrow
-      '=>',    // Thick arrow
-      '<='     // Thick left arrow
+      '->',
+      '-->',
+      '->>',
+      '.>',
+      '<-',
+      '<--',
+      '<<-',
+      '<.'
     ),
 
-    arrow_label: $ => seq(
-      optional(':'),
-      optional($.arrow_label_marker),
-      field('text', /[^;\n]+/)
-    ),
+    arrow_label: $ => token(/:[^\n;]+/),
 
-    // Detach and kill
-    detach: $ => 'detach',
-    kill: $ => 'kill',
+    // ============= CONTROL FLOW (normalized format) =============
 
-    // Swimlanes
-    swimlane: $ => seq(
-      '|',
-      field('name', $.identifier),
-      '|'
-    ),
-
-    // ============= Control Flow =============
-
-    // If-then-else (decision nodes)
+    // If-then-else statements
     decision_node: $ => seq(
       'if',
-      field('condition', $.condition_expression),
+      field('condition', $.condition),
       'then',
-      optional(prec(2, field('true_label', $.branch_label))),
+      optional(field('true_label', $.branch_label)),
       repeat($._statement),
       repeat($.elseif_branch),
       optional($.else_branch),
@@ -205,35 +144,25 @@ module.exports = grammar({
 
     elseif_branch: $ => seq(
       'elseif',
-      field('condition', $.condition_expression),
+      field('condition', $.condition),
       'then',
-      optional(prec(2, field('label', $.branch_label))),
+      optional(field('label', $.branch_label)),
       repeat($._statement)
     ),
 
     else_branch: $ => seq(
       'else',
-      optional(prec(2, field('label', $.branch_label))),
+      optional(field('label', $.branch_label)),
       repeat($._statement)
     ),
 
-    branch_label: $ => seq(
-      '(',
-      /[^)]+/,
-      ')'
-    ),
-
-    condition_expression: $ => seq(
-      optional($.condition_marker),
-      '(',
-      /[^)]+/,
-      ')'
-    ),
+    condition: $ => seq('(', /[^)]+/, ')'),
+    branch_label: $ => seq('(', /[^)]+/, ')'),
 
     // While loops
     while_loop: $ => seq(
       'while',
-      field('condition', $.condition_expression),
+      field('condition', $.condition),
       optional(seq('is', field('label', $.branch_label))),
       repeat($._statement),
       'endwhile',
@@ -241,144 +170,123 @@ module.exports = grammar({
     ),
 
     // Repeat-while loops
-    repeat_loop: $ => prec.left(seq(
+    repeat_loop: $ => prec.right(seq(
       'repeat',
       repeat1($._statement),
       'repeat',
       'while',
-      field('condition', $.condition_expression),
+      field('condition', $.condition),
       optional(seq('is', field('label', $.branch_label)))
     )),
 
-    loop_label: $ => seq(
-      optional($.loop_label_marker),
-      '(',
-      /[^)]+/,
-      ')'
+    // ============= GROUPING (normalized format) =============
+
+    partition: $ => prec.right(choice(
+      // Partition with braces
+      seq(
+        'partition',
+        field('name', $.string),
+        optional(field('color', $.color)),
+        '{',
+        repeat($._statement),
+        '}'
+      ),
+      // Partition without braces (inline)
+      seq(
+        'partition',
+        field('name', $.string),
+        optional(field('color', $.color))
+      )
+    )),
+
+    swimlane: $ => seq(
+      '|',
+      field('name', $.swimlane_name),
+      '|'
     ),
 
-    end_loop_label: $ => seq(
-      optional($.loop_label_marker),
-      '(',
-      /[^)]+/,
-      ')'
-    ),
+    swimlane_name: $ => /[^|]+/,
 
-    // Fork and split - flat markers
+    // ============= FORK/SPLIT =============
+
     fork_node: $ => choice(
       token(seq('fork', /\s+/, 'again')),
+      'fork'
+    ),
+
+    join_node: $ => seq('end', 'fork'),
+
+    split_node: $ => choice(
       token(seq('split', /\s+/, 'again')),
-      'fork',
       'split'
     ),
 
-    join_node: $ => choice(
-      seq('end', 'fork'),
-      seq('end', 'split')
-    ),
+    split_join_node: $ => seq('end', 'split'),
 
-    // ============= Directives =============
+    // ============= DIRECTIVES (normalized format) =============
 
     title_directive: $ => seq(
       'title',
-      field('content', alias(/[^\n]+/, $.text_line))
+      field('content', $.text_content)
     ),
+
+    note_directive: $ => choice(
+      // Multi-line note
+      seq(
+        'note',
+        field('position', $.note_position),
+        repeat1($.note_line),
+        'end',
+        'note'
+      ),
+      // Single line note: note position: content
+      seq(
+        'note',
+        field('position', $.note_position),
+        ':',
+        field('content', $.text_content)
+      )
+    ),
+
+    note_position: $ => choice('left', 'right', 'top', 'bottom'),
+    note_line: $ => /[^\n]+/,
 
     skinparam_directive: $ => seq(
       'skinparam',
       field('parameter', $.identifier),
-      field('value', $.identifier)
+      field('value', $.text_content)
     ),
 
-    pragma_directive: $ => seq(
-      '!pragma',
-      field('name', $.identifier),
-      field('value', optional($.directive_value))
-    ),
+    // ============= SPECIAL NODES =============
 
-    include_directive: $ => seq(
-      '!include',
-      field('path', $.string)
-    ),
+    detach: $ => 'detach',
+    kill: $ => 'kill',
 
-    directive_text: $ => /[^\n]+/,
-    directive_value: $ => /[^\n]+/,
-
-    // ============= Partitions =============
-
-    partition: $ => seq(
-      'partition',
-      field('name', optional(choice($.string, $.identifier))),
-      optional($.color_spec),
-      '{',
-      repeat($._statement),
-      '}'
-    ),
-
-    color_spec: $ => seq(
-      '#',
-      field('color', $.identifier)
-    ),
-
-    // ============= Notes =============
-
-    note_directive: $ => choice(
-      $.note_line,
-      $.floating_note
-    ),
-
-    note_line: $ => seq(
-      'note',
-      field('position', $.identifier),
-      ':',
-      field('content', alias(/[^\n]+/, $.text_line))
-    ),
-
-    floating_note: $ => seq(
-      'note',
-      field('position', $.identifier),
-      $.content_start,
-      repeat1($.note_content_line),
-      $.content_end,
-      'end',
-      'note'
-    ),
-
-    note_position: $ => choice(
-      'left',
-      'right',
-      'top',
-      'bottom',
-      seq('over', field('target', $.identifier))
-    ),
-
-    note_text: $ => /[^\n]+/,
-
-    // ============= Common Elements =============
+    // ============= BASIC ELEMENTS =============
 
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
-    string: $ => choice(
-      seq('"', /[^"]*/, '"'),
-      seq("'", /[^']*/, "'")
+    string: $ => seq(
+      '"',
+      /[^"]*/,
+      '"'
     ),
 
-    comment: $ => choice(
-      $.line_comment,
-      $.block_comment
-    ),
+    color: $ => seq('#', /[a-zA-Z0-9]+/),
 
-    line_comment: $ => seq(
-      "'",
-      /.*/
-    ),
+    text_content: $ => /[^\n]+/,
 
-    block_comment: $ => seq(
+    // ============= COMMENTS =============
+
+    line_comment: $ => token(seq("'", /.*/)),
+
+    block_comment: $ => token(seq(
       "/'",
-      /[^/]*/,
+      repeat(choice(
+        /[^']/,
+        /'[^/]/
+      )),
       "'/"
-    ),
-
-    _whitespace: $ => /\s+/
+    ))
   }
 });
