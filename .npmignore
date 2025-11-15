@@ -1,0 +1,75 @@
+# Development and testing
+test/
+coverage/
+.nyc_output/
+examples/
+specification/
+scripts/
+.github/
+.claude/
+
+# Build artifacts (intermediate files, not the final build)
+*.o
+*.obj
+*.a
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.backup
+*.bak
+*.tmp
+
+# Dependencies
+node_modules/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+
+# Docker (not needed in npm package)
+docker-compose.yml
+Dockerfile
+
+# Documentation that's not needed in package
+*.md
+!README.md
+
+# Configuration files
+jest.config.js
+.eslintrc*
+.prettierrc*
+tsconfig.json
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Cargo (Rust - not needed for npm)
+Cargo.toml
+Cargo.lock
+
+# Fast index (if not needed in production)
+index-fast.js
