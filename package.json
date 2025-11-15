@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-plantuml",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "PlantUML grammar for tree-sitter - Two-Pass Architecture with Browser Support",
   "main": "bindings/node",
   "types": "bindings/node/index.d.ts",
@@ -11,12 +11,12 @@
       "types": "./bindings/node/index.d.ts"
     },
     "./wasm": {
-      "import": "./bindings/web/index.js",
+      "import": "./bindings/web/index.mjs",
       "require": "./bindings/web/index.js",
       "types": "./bindings/web/index.d.ts"
     },
     "./normalizer": {
-      "import": "./src/normalizer/index.js",
+      "import": "./src/normalizer/index.mjs",
       "require": "./src/normalizer/index.js"
     },
     "./tree-sitter-plantuml.wasm": "./tree-sitter-plantuml.wasm",

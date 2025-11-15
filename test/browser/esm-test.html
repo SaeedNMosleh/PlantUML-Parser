@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantUML Parser - ESM Browser Test</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #4CAF50;
+      padding-bottom: 10px;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .status.pending {
+      background: #FFF3CD;
+      color: #856404;
+    }
+    .status.running {
+      background: #D1ECF1;
+      color: #0C5460;
+    }
+    .status.success {
+      background: #D4EDDA;
+      color: #155724;
+    }
+    .status.error {
+      background: #F8D7DA;
+      color: #721C24;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-left: 4px solid #4CAF50;
+      overflow-x: auto;
+      border-radius: 4px;
+    }
+    .result-box {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+  <!-- Load web-tree-sitter from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/web-tree-sitter@0.22.6"></script>
+</head>
+<body>
+  <h1>🚀 PlantUML Parser - ESM Browser Test</h1>
+
+  <div class="test-section">
+    <h2>Test Status</h2>
+    <div id="status" class="status pending">⏳ Waiting to start...</div>
+  </div>
+
+  <div class="test-section">
+    <h2>Actions</h2>
+    <button onclick="runTest1()">Test 1: Normalize Only (No WASM)</button>
+    <button onclick="runTest2()" id="wasmBtn">Test 2: Full Parsing with WASM</button>
+    <button onclick="runAllTests()" id="allBtn">Run All Tests</button>
+  </div>
+
+  <div class="test-section">
+    <h2>Test Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <script type="module">
+    // Import the ESM versions
+    import { PlantUMLNormalizer } from '../../src/normalizer/index.mjs';
+    import { createParser } from '../../bindings/web/index.mjs';
+
+    // Make functions available globally for button onclick
+    window.PlantUMLNormalizer = PlantUMLNormalizer;
+    window.createParser = createParser;
+
+    function setStatus(message, type = 'running') {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+    }
+
+    function addResult(title, data, success = true) {
+      const resultsEl = document.getElementById('results');
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'result-box';
+      resultDiv.innerHTML = `
+        <h3>${success ? '✅' : '❌'} ${title}</h3>
+        <pre>${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}</pre>
+      `;
+      resultsEl.appendChild(resultDiv);
+    }
+
+    // Test 1: Normalizer only (No WASM needed)
+    window.runTest1 = async function() {
+      try {
+        setStatus('Running Test 1: Normalizer only...', 'running');
+
+        const normalizer = new PlantUMLNormalizer({
+          debug: true
+        });
+
+        const source = `@startuml
+(*)
+:My Activity;
+if (condition?) then (yes)
+  :Do something;
+else (no)
+  :Do nothing;
+endif
+(*)
+@enduml`;
+
+        const result = normalizer.normalize(source);
+
+        addResult('Test 1: Normalizer (ESM)', {
+          normalizedLines: result.normalized.split('\n').length,
+          metadata: result.metadata,
+          sample: result.normalized.split('\n').slice(0, 5).join('\n') + '\n...'
+        });
+
+        setStatus('✅ Test 1 passed!', 'success');
+        return true;
+      } catch (error) {
+        addResult('Test 1: Normalizer (ESM)', error.message, false);
+        setStatus('❌ Test 1 failed: ' + error.message, 'error');
+        return false;
+      }
+    };
+
+    // Test 2: Full parsing with WASM
+    window.runTest2 = async function() {
+      try {
+        setStatus('Running Test 2: Full parsing with WASM...', 'running');
+
+        const parser = await createParser({
+          wasmPath: '../../tree-sitter-plantuml.wasm',
+          debug: true
+        });
+
+        const source = `@startuml
+start
+:Initialize system;
+if (Ready?) then (yes)
+  :Process data;
+else (no)
+  :Show error;
+endif
+stop
+@enduml`;
+
+        const result = parser.parse(source);
+
+        addResult('Test 2: Full Parser (WASM + ESM)', {
+          rootNodeType: result.tree.rootNode.type,
+          childCount: result.tree.rootNode.childCount,
+          normalized: result.normalized.substring(0, 100) + '...',
+          metadata: result.metadata
+        });
+
+        setStatus('✅ Test 2 passed!', 'success');
+        return true;
+      } catch (error) {
+        addResult('Test 2: Full Parser (WASM + ESM)', error.message + '\n\n' + error.stack, false);
+        setStatus('❌ Test 2 failed: ' + error.message, 'error');
+        return false;
+      }
+    };
+
+    // Run all tests
+    window.runAllTests = async function() {
+      document.getElementById('results').innerHTML = '';
+      setStatus('Running all tests...', 'running');
+
+      const test1 = await runTest1();
+      const test2 = await runTest2();
+
+      if (test1 && test2) {
+        setStatus('✅ All tests passed!', 'success');
+      } else {
+        setStatus(`❌ Some tests failed (Test 1: ${test1 ? 'PASS' : 'FAIL'}, Test 2: ${test2 ? 'PASS' : 'FAIL'})`, 'error');
+      }
+    };
+
+    // Auto-run Test 1 on page load
+    window.addEventListener('load', () => {
+      console.log('Page loaded, running Test 1...');
+      runTest1();
+    });
+  </script>
+</body>
+</html>
