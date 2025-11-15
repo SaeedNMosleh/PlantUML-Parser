@@ -4,10 +4,14 @@
 (startuml_directive) @keyword.directive
 (enduml_directive) @keyword.directive
 
-; Keywords
+; Node-based keywords
+(start_node) @keyword
+(stop_node) @keyword
+(detach) @keyword
+(kill) @keyword
+
+; Keywords (anonymous tokens)
 [
-  "start"
-  "stop"
   "end"
   "if"
   "then"
@@ -22,10 +26,6 @@
   "partition"
   "is"
 ] @keyword
-
-; Special statements
-(detach) @keyword
-(kill) @keyword
 
 ; Directives
 [
