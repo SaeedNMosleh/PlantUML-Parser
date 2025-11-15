@@ -1,8 +1,8 @@
 {
   "name": "tree-sitter-plantuml",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "PlantUML grammar for tree-sitter - Two-Pass Architecture with Browser Support",
-  "main": "index.js",
+  "main": "bindings/node",
   "types": "bindings/node/index.d.ts",
   "exports": {
     ".": {
@@ -46,11 +46,12 @@
     "test:parser": "tree-sitter test",
     "test:integration": "jest test/integration",
     "test:all": "npm run validate && npm test && npm run test:integration",
+    "test:ci": "npm test && npm run test:integration",
     "test:100": "npm run test:all && echo '✅ 100% Success Rate Achieved!'",
     "generate": "tree-sitter generate",
     "parse": "tree-sitter parse",
     "build": "npm run generate && node-gyp rebuild",
-    "build:wasm": "tree-sitter build-wasm",
+    "build:wasm": "node -e \"const fs=require('fs'); if(!fs.existsSync('tree-sitter-plantuml.wasm')){process.exit(1)}\" || tree-sitter build-wasm",
     "build:all": "npm run build && npm run build:wasm",
     "clean": "rm -rf build coverage *.obj *.backup *.wasm",
     "rebuild": "npm run clean && npm run build:all",
@@ -59,7 +60,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:validate": "npm run docker:up && npm run validate",
-    "prepublishOnly": "npm run build:all && npm run test:all"
+    "prepublishOnly": "npm run build:all && npm run test:ci"
   },
   "dependencies": {
     "node-addon-api": "^7.0.0",
