@@ -349,34 +349,24 @@ console.log(stats);
 
 ### Client-Side (Browser)
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <script src="https://unpkg.com/web-tree-sitter@latest"></script>
-  <script>
-    (async () => {
-      await TreeSitter.init();
-      const parser = new TreeSitter();
-      const PlantUML = await TreeSitter.Language.load('tree-sitter-plantuml.wasm');
-      parser.setLanguage(PlantUML);
+Use the `tree-sitter-plantuml/wasm` entrypoint for browser/WASM usage. It dynamically imports `web-tree-sitter` (an optional peer dependency) and loads the shipped `tree-sitter-plantuml.wasm`.
 
-      const source = `@startuml
+```javascript
+import { createParser } from 'tree-sitter-plantuml/wasm';
+
+// Ensure the WASM file is publicly reachable (example: copy it to /public).
+// Source file: node_modules/tree-sitter-plantuml/tree-sitter-plantuml.wasm
+const parser = await createParser({ wasmPath: '/tree-sitter-plantuml.wasm' });
+
+const source = `@startuml
 :Process;
 @enduml`;
 
-      const tree = parser.parse(source);
-      console.log('Root node:', tree.rootNode);
-    })();
-  </script>
-</head>
-<body>
-  <h1>PlantUML Parser in Browser</h1>
-</body>
-</html>
+const { tree, normalized, metadata } = parser.parse(source);
+console.log('Root node:', tree.rootNode);
+console.log('Normalized:', normalized);
+console.log('Metadata:', metadata);
 ```
-
-**Note**: Browser support requires WASM build (not yet available for two-pass parser).
 
 ### Server-Side (Express)
 
@@ -515,12 +505,10 @@ describe('PlantUML Parser', () => {
 ```typescript
 // src/extension.ts
 import * as vscode from 'vscode';
-import Parser from 'tree-sitter';
-import PlantUML from 'tree-sitter-plantuml';
+import PlantUMLParser from 'tree-sitter-plantuml';
 
 export function activate(context: vscode.ExtensionContext) {
-  const parser = new Parser();
-  parser.setLanguage(PlantUML);
+  const parser = new PlantUMLParser();
 
   // Syntax highlighting
   const highlightProvider = vscode.languages.registerDocumentSemanticTokensProvider(
@@ -548,16 +536,14 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import Parser from 'tree-sitter';
-import PlantUML from 'tree-sitter-plantuml';
+import PlantUMLParser from 'tree-sitter-plantuml';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
-const parser = new Parser();
-parser.setLanguage(PlantUML);
+const parser = new PlantUMLParser();
 
 documents.onDidChangeContent(change => {
-  const tree = parser.parse(change.document.getText());
+  const { tree } = parser.parse(change.document.getText());
   // Provide diagnostics, completions, etc.
 });
 
@@ -573,9 +559,29 @@ connection.listen();
 ```json
 {
   "name": "tree-sitter-plantuml",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Tree-sitter parser for PlantUML with two-pass architecture",
-  "main": "index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./wasm": {
+      "types": "./dist/wasm.d.ts",
+      "import": "./dist/wasm.mjs",
+      "require": "./dist/wasm.cjs"
+    },
+    "./normalizer": {
+      "types": "./dist/normalizer.d.ts",
+      "import": "./dist/normalizer.mjs",
+      "require": "./dist/normalizer.cjs"
+    },
+    "./tree-sitter-plantuml.wasm": "./tree-sitter-plantuml.wasm"
+  },
   "keywords": [
     "tree-sitter",
     "parser",
@@ -589,25 +595,11 @@ connection.listen();
     "type": "git",
     "url": "https://github.com/SaeedNMosleh/PlantUML-Parser"
   },
-  "files": [
-    "grammar.js",
-    "binding.gyp",
-    "index.js",
-    "bindings/",
-    "src/",
-    "queries/"
-  ],
-  "dependencies": {
-    "tree-sitter": "^0.21.0"
-  },
-  "devDependencies": {
-    "tree-sitter-cli": "^0.22.0",
-    "jest": "^29.0.0"
-  },
   "scripts": {
     "generate": "tree-sitter generate",
-    "build": "node-gyp rebuild",
-    "test": "tree-sitter test && jest"
+    "build:all": "npm run generate && npm run build:native && npm run build:wasm && npm run build:js",
+    "test": "npm run build:all && npm run test:normalizer && npm run test:parser",
+    "test:all": "npm run validate && npm test && npm run test:integration"
   }
 }
 ```
@@ -643,7 +635,7 @@ npm install
 npm run generate
 
 # Build native binding
-npm run build
+npm run build:all
 
 # Run tests
 npm run test:all
@@ -670,7 +662,7 @@ npm run rebuild
 **Solution**:
 ```bash
 npm install
-npm run build
+npm run build:all
 ```
 
 ### Tests Failing
@@ -697,5 +689,5 @@ See [Troubleshooting Guide](./troubleshooting.md) for more issues.
 ---
 
 **Status**: Phase 1 (Activity Diagrams) Complete ✅
-**Version**: 2.0.0
-**Last Updated**: 2025-11-15
+**Version**: 2.1.0
+**Last Updated**: 2025-12-27

@@ -2,7 +2,7 @@
  * Normalizer integration tests
  */
 
-const PlantUMLNormalizer = require('../../src/normalizer');
+const { default: PlantUMLNormalizer } = require('../../dist/normalizer.cjs');
 
 describe('Normalizer Integration Tests', () => {
   let normalizer;

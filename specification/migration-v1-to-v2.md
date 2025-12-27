@@ -111,13 +111,14 @@ The following files have been **removed** in v2.0:
 
 New files in v2.0:
 
-- `index.js` - Main entry point with PlantUMLParser class
-- `src/normalizer/index.js` - Core normalizer
-- `src/normalizer/rules/` - Normalization rule modules
-- `src/normalizer/utils.js` - Utility functions
+- `src/index.ts` - Node-native default entry (built to `dist/index.*`)
+- `src/wasm.ts` - Browser/WASM entry (built to `dist/wasm.*`, exported as `tree-sitter-plantuml/wasm`)
+- `src/normalizer/` - Core normalizer (built to `dist/normalizer.*`, exported as `tree-sitter-plantuml/normalizer`)
+- `src/core/` - Runtime-agnostic orchestrator + shared types
+- `src/runtimes/` - Node-native + WASM backends
 - `test/normalizer/` - Normalizer unit tests
 - `test/integration/` - Full pipeline tests
-- `docs/NORMALIZER.md` - Normalization documentation
+- `specification/normalizer.md` - Normalization documentation
 - `jest.config.js` - Jest configuration
 
 ## Migration Steps
@@ -146,8 +147,8 @@ const Parser = require('tree-sitter');
 **After (v2.0)**:
 ```javascript
 const PlantUMLParser = require('tree-sitter-plantuml');
-// OR
-const { PlantUMLParser, PlantUMLNormalizer } = require('tree-sitter-plantuml');
+// Normalizer-only usage (no native binding):
+const PlantUMLNormalizer = require('tree-sitter-plantuml/normalizer');
 ```
 
 ### Step 3: Update Parser Initialization
@@ -252,7 +253,7 @@ Test case
 npm run generate
 
 # Rebuild native bindings
-npm run build
+npm run build:all
 
 # Run tests
 npm test
@@ -432,7 +433,7 @@ function setupLanguage() {
 ```bash
 npm run clean      # If you have this script
 npm run generate
-npm run build
+npm run build:all
 ```
 
 ### Issue: Tests failing with "unexpected token"
@@ -513,7 +514,7 @@ Use this checklist to ensure complete migration:
 - [ ] Updated import statements
 - [ ] Changed parse calls to use new API
 - [ ] Updated test files (removed markers)
-- [ ] Rebuilt parser (`npm run build`)
+- [ ] Rebuilt parser (`npm run build:all`)
 - [ ] All tests passing (`npm test`)
 - [ ] Verified AST structure matches expectations
 - [ ] Updated documentation/comments

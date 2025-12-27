@@ -16,9 +16,9 @@ module.exports = {
 
   // Coverage collection
   collectCoverageFrom: [
-    'src/normalizer/**/*.js',
-    '!src/normalizer/rules/**/*.js',
-    'index.js'
+    'dist/**/*.cjs',
+    '!dist/**/*.d.ts',
+    '!dist/**/*.d.mts'
   ],
 
   // Coverage thresholds

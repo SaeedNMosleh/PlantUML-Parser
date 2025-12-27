@@ -124,7 +124,7 @@ endwhile
 ### Normalizer API
 
 ```javascript
-const PlantUMLNormalizer = require('./src/normalizer');
+const PlantUMLNormalizer = require('tree-sitter-plantuml/normalizer');
 
 const normalizer = new PlantUMLNormalizer({
   debug: false,
@@ -141,9 +141,8 @@ const result = normalizer.normalize(`
 // result = {
 //   normalized: "@startuml\n->: Label\n@enduml",
 //   metadata: {
-//     rules_applied: ['arrow_consolidation', 'whitespace_normalization'],
-//     original_length: 30,
-//     normalized_length: 27
+//     diagramType: 'activity',
+//     sourceMap: { normalizedLineToOriginalLine: [/* ... */] }
 //   }
 // }
 ```
@@ -497,8 +496,8 @@ npm run test:100
 
 ```
 Normalizer:    ~0.5ms  (typical activity diagram)
-Grammar:       ~3ms    (using mock parser for tests)
-Integration:   <3s     (all 17 tests with fast parser)
+Grammar:       ~3ms
+Integration:   <3s     (all integration tests)
 ```
 
 ### Memory Management
@@ -518,11 +517,11 @@ Integration:   <3s     (all 17 tests with fast parser)
 # 1. Generate parser from grammar.js
 npm run generate    # → src/parser.c, src/node-types.json
 
-# 2. Compile native binding
-npm run build       # → build/Release/tree_sitter_plantuml_binding.node
+# 2. Build native + wasm + JS/TS outputs
+npm run build:all    # → build/Release/*.node, tree-sitter-plantuml.wasm, dist/*
 
 # 3. Run tests
-npm run test:all    # → 136/136 tests passing
+npm run test:all     # → full suite (validate + unit + corpus + integration)
 
 # 4. Package for distribution
 npm pack            # → tree-sitter-plantuml-2.0.0.tgz
@@ -532,23 +531,27 @@ npm pack            # → tree-sitter-plantuml-2.0.0.tgz
 
 ```
 tree-sitter-plantuml/
-├── index.js                    # Main API (PlantUMLParser)
 ├── grammar.js                  # Grammar definition (source of truth)
 ├── binding.gyp                 # Native build config
+├── dist/                       # Built JS/TS outputs (CJS + ESM + types)
+│   ├── index.cjs/.mjs/.d.ts     # Node-native default entry
+│   ├── wasm.cjs/.mjs/.d.ts      # Browser/WASM entry (`tree-sitter-plantuml/wasm`)
+│   └── normalizer.cjs/.mjs/.d.ts# Normalizer-only entry (`tree-sitter-plantuml/normalizer`)
 ├── src/
 │   ├── parser.c                # Generated parser (DO NOT EDIT)
 │   ├── grammar.json            # Generated grammar metadata
 │   ├── node-types.json         # Generated AST node types
-│   └── normalizer/             # Normalizer implementation
-│       ├── index.js            # PlantUMLNormalizer class
-│       └── rules/              # Normalization rules
+│   ├── core/                   # Orchestrator + shared types
+│   ├── normalizer/             # Normalizer implementation
+│   └── runtimes/               # Node-native + WASM backends
 ├── test/
 │   ├── corpus/activity/        # Grammar corpus tests (30)
 │   ├── normalizer/             # Normalizer unit tests (59)
 │   ├── integration/            # Full pipeline tests (17)
 │   └── fixtures/               # Test PlantUML files
 ├── bindings/
-│   └── node/index.js           # Node.js binding loader
+│   └── node/binding.cc         # Node addon source (node-gyp)
+├── prebuilds/                  # Prebuilt native binaries (optional)
 └── specification/              # Documentation
 ```
 
@@ -632,5 +635,5 @@ See [ROADMAP.md](./ROADMAP.md) for detailed phase plan.
 ---
 
 **Status**: Phase 1 (Activity Diagrams) Complete ✅
-**Version**: 2.0.0
-**Last Updated**: 2025-11-15
+**Version**: 2.1.0
+**Last Updated**: 2025-12-27

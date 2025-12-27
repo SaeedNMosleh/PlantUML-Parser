@@ -6,7 +6,7 @@
 // Using fast mock parser due to native binding issue with tree-sitter in Node.js
 // This tests the normalizer (which works) with mock parsing for speed
 // TODO: Fix native binding and switch back to index.js
-const PlantUMLParser = require('../../index-fast');
+const { default: PlantUMLParser } = require('../../dist/index.cjs');
 
 describe('Full Pipeline Integration', () => {
   let parser;

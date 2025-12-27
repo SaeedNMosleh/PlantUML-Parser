@@ -43,7 +43,7 @@ npm run test:normalizer -- --watch    # Watch mode
 
 ```javascript
 // test/normalizer/arrows.test.js
-const PlantUMLNormalizer = require('../../src/normalizer');
+const PlantUMLNormalizer = require('../../dist/normalizer.cjs');
 
 describe('Arrow Normalization', () => {
   let normalizer;
@@ -174,7 +174,7 @@ npm run test:integration -- --watch    # Watch mode
 
 ```javascript
 // test/integration/full-pipeline.test.js
-const PlantUMLParser = require('../../index-fast');
+const PlantUMLParser = require('tree-sitter-plantuml');
 
 describe('Full Pipeline Tests', () => {
   let parser;
@@ -278,7 +278,7 @@ Validating 30 test cases...
 
 ```javascript
 // test/normalizer/new-feature.test.js
-const PlantUMLNormalizer = require('../../src/normalizer');
+const PlantUMLNormalizer = require('../../dist/normalizer.cjs');
 
 describe('New Feature Normalization', () => {
   test('normalizes new syntax', () => {
@@ -308,7 +308,7 @@ normalized input
 
 ```javascript
 // test/integration/new-feature.test.js
-const PlantUMLParser = require('../../index-fast');
+const PlantUMLParser = require('tree-sitter-plantuml');
 
 test('parses new feature end-to-end', () => {
   const parser = new PlantUMLParser();
@@ -569,5 +569,5 @@ See [ROADMAP.md](./ROADMAP.md) for full phase plan.
 ---
 
 **Current Test Results**: 136/136 passing (100% ✅)
-**Version**: 2.0.0
-**Last Updated**: 2025-11-15
+**Version**: 2.1.0
+**Last Updated**: 2025-12-27

@@ -2,6 +2,54 @@
 
 A high-performance [tree-sitter](https://tree-sitter.github.io/) parser for PlantUML using a **two-pass architecture** (Normalizer + Grammar) to handle PlantUML's ambiguous syntax.
 
+## At a Glance
+
+```bash
+npm install tree-sitter-plantuml
+```
+
+```javascript
+import PlantUMLParser from 'tree-sitter-plantuml';
+
+const parser = new PlantUMLParser();
+const result = parser.parse('@startuml\nstart\n:Hello World;\nstop\n@enduml');
+console.log(result.tree.rootNode.toString());
+```
+
+## Table of Contents
+
+- [At a Glance](#at-a-glance)
+- [Quick Start](#quick-start)
+- [Status: Phase 1 Complete](#status-phase-1-complete-)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [From npm](#from-npm-when-published)
+  - [Development Setup](#development-setup)
+  - [Installation Troubleshooting](#installation-troubleshooting)
+- [Usage](#usage)
+  - [Parse PlantUML](#parse-plantuml)
+  - [Normalize Only](#normalize-only)
+  - [Parse Normalized Input](#parse-normalized-input)
+- [Common Issues](#common-issues)
+- [Browser Usage](#browser-usage)
+  - [Setup Checklist](#setup-checklist)
+  - [Quick Start (Browser)](#quick-start-browser)
+  - [Usage with Module Bundlers](#usage-with-module-bundlers)
+  - [Normalizer Only (Lightweight)](#normalizer-only-lightweight---no-wasm)
+  - [TypeScript Support](#typescript-support)
+- [Testing](#testing)
+- [Development](#development)
+- [Project Structure](#project-structure)
+- [Documentation](#documentation)
+- [Roadmap](#roadmap)
+- [Performance](#performance)
+- [Contributing](#contributing)
+- [Integration](#integration)
+- [Resources](#resources)
+- [License](#license)
+
 ## Quick Start
 
 ```bash
@@ -9,13 +57,14 @@ A high-performance [tree-sitter](https://tree-sitter.github.io/) parser for Plan
 npm install
 
 # Build the parser
-npm run build
+npm run build:all
 
 # Run all tests
 npm test
 ```
 
 ```javascript
+// CommonJS
 const PlantUMLParser = require('tree-sitter-plantuml');
 
 const parser = new PlantUMLParser();
@@ -33,6 +82,15 @@ stop
 const result = parser.parse(source);
 console.log('AST:', result.tree.rootNode.toString());
 console.log('Normalized:', result.normalized);
+```
+
+```javascript
+// ESM / TypeScript
+import PlantUMLParser from 'tree-sitter-plantuml';
+
+const parser = new PlantUMLParser();
+const result = parser.parse(source);
+console.log('AST:', result.tree.rootNode.toString());
 ```
 
 ## Status: Phase 1 Complete ✅
@@ -116,13 +174,51 @@ cd PlantUML-Parser
 npm install
 
 # Generate parser and build native bindings
-npm run build
+npm run build:all
 ```
+
+### Installation Troubleshooting
+
+**Issue: `npm install` or `npm ci` hangs during installation**
+
+This is usually caused by the optional `tree-sitter-cli` dependency trying to download a binary from GitHub, which may fail behind corporate proxies or firewalls (e.g., Zscaler).
+
+**Solutions:**
+
+1. **Skip optional dependencies** (Recommended for users):
+   ```bash
+   npm ci --omit=optional
+   # or
+   npm install --no-optional
+   ```
+
+2. **Skip all install scripts**:
+   ```bash
+   npm ci --ignore-scripts
+   ```
+
+3. **Set proxy environment variables** (if behind a corporate proxy):
+   ```bash
+   # PowerShell (Windows)
+   $env:HTTPS_PROXY = "http://your-proxy:port"
+   $env:NODE_EXTRA_CA_CERTS = "C:\path\to\your\ca-cert.crt"
+   npm install
+
+   # Bash (Linux/Mac)
+   export HTTPS_PROXY=http://your-proxy:port
+   export NODE_EXTRA_CA_CERTS=/path/to/your/ca-cert.crt
+   npm install
+   ```
+
+**Note:** The `tree-sitter-cli` is only needed for grammar development. End users and library consumers don't need it.
+
+For more troubleshooting, see [specification/troubleshooting.md](./specification/troubleshooting.md).
 
 ## Usage
 
 ### Parse PlantUML
 
+**CommonJS:**
 ```javascript
 const PlantUMLParser = require('tree-sitter-plantuml');
 
@@ -135,6 +231,20 @@ const result = parser.parse(source);
 // result.tree - tree-sitter AST
 // result.normalized - normalized PlantUML
 // result.metadata - diagram metadata
+```
+
+**ESM / TypeScript:**
+```typescript
+import PlantUMLParser from 'tree-sitter-plantuml';
+import type { ParseResult, ParseOptions } from 'tree-sitter-plantuml';
+
+const options: ParseOptions = {
+  preserveComments: true,
+  preserveWhitespace: false
+};
+
+const parser = new PlantUMLParser(options);
+const result: ParseResult = parser.parse(source);
 ```
 
 ### Normalize Only
@@ -154,43 +264,98 @@ const result = parser.parseNormalized(normalizedSource);
 
 See [specification/api-reference.md](./specification/api-reference.md) for complete API documentation.
 
+## Common Issues
+
+### 1. Module Import/Export Errors
+
+**Error: "Cannot use import statement outside a module"**
+
+**Solutions:**
+- Add `"type": "module"` to your package.json for ESM, or
+- Use `.mjs` file extension for ES modules, or
+- Use CommonJS `require()` instead
+
+**Error: "require() of ES Module not supported"**
+
+**Solution:**
+- Use `import` instead of `require()` for ESM packages
+- Check that your bundler/runtime supports the module format
+
+### 2. TypeScript Type Resolution
+
+**Error: "Cannot find module 'tree-sitter-plantuml' or its corresponding type declarations"**
+
+**Solutions:**
+- Ensure `tree-sitter-plantuml` is installed in `dependencies` (not devDependencies)
+- Check that `dist/*.d.ts` files exist after installation
+- Try: `npm install --no-optional` if installation was incomplete
+
+### 3. Browser: WASM File Not Found
+
+**Error: "Failed to fetch tree-sitter-plantuml.wasm"**
+
+**Solutions:**
+- Copy `node_modules/tree-sitter-plantuml/tree-sitter-plantuml.wasm` to your `public/` directory
+- Configure your bundler (Vite/Webpack/Rollup) to include `.wasm` files as assets
+- Check that the WASM file is being served with correct MIME type: `application/wasm`
+
+### 4. node-gyp Build Failures
+
+**Error: "gyp ERR! build error" or "Error: Could not find any native bindings"**
+
+**Solutions:**
+- Install build prerequisites:
+  - **Windows**: `npm install --global windows-build-tools`
+  - **Mac**: Install Xcode Command Line Tools: `xcode-select --install`
+  - **Linux**: `sudo apt-get install build-essential` (Debian/Ubuntu)
+- Use prebuilt binaries: `npm install --no-optional` (skips optional tree-sitter-cli)
+- For browser-only usage: Use `tree-sitter-plantuml/wasm` entry point (no native binding needed)
+
+### 5. Corporate Proxy/Firewall Issues
+
+**Symptom: Installation hangs or times out**
+
+See [Installation Troubleshooting](#installation-troubleshooting) above for proxy configuration.
+
+**Need More Help?**
+
+See the comprehensive [Troubleshooting Guide](./specification/troubleshooting.md) for detailed solutions to build issues, runtime errors, and performance problems.
+
 ## Browser Usage
 
 The parser supports browser environments via **WebAssembly (WASM)**. The two-pass architecture makes it especially powerful for browsers:
 - **Pass 1 (Normalizer)**: Pure JavaScript, runs natively in browsers (no WASM needed)
 - **Pass 2 (Parser)**: Tree-sitter WASM for full parsing
 
+### Setup Checklist
+
+Before using the parser in the browser, ensure you have:
+
+- [ ] Installed dependencies: `npm install tree-sitter-plantuml web-tree-sitter`
+- [ ] Copied WASM file from `node_modules/tree-sitter-plantuml/tree-sitter-plantuml.wasm` to your `public/` directory
+- [ ] Configured your bundler (Vite/Webpack/Rollup) to handle `.wasm` files (see bundler examples below)
+- [ ] Verified WASM file is served with MIME type `application/wasm`
+
 ### Quick Start (Browser)
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <script src="https://cdn.jsdelivr.net/npm/web-tree-sitter@0.22.6"></script>
-</head>
-<body>
-  <script type="module">
-    // Import the WASM version
-    import { createParser } from './node_modules/tree-sitter-plantuml/bindings/web/index.js';
+Use the `tree-sitter-plantuml/wasm` entrypoint in browsers. It dynamically imports `web-tree-sitter` (an optional peer dependency) and loads `tree-sitter-plantuml.wasm`.
 
-    // Initialize parser with WASM
-    const parser = await createParser({
-      wasmPath: './node_modules/tree-sitter-plantuml/tree-sitter-plantuml.wasm'
-    });
+```javascript
+import { createParser } from 'tree-sitter-plantuml/wasm';
 
-    // Parse PlantUML
-    const source = `@startuml
+// Ensure the WASM file is publicly reachable (example: copy it to /public).
+// Source file: node_modules/tree-sitter-plantuml/tree-sitter-plantuml.wasm
+const parser = await createParser({ wasmPath: '/tree-sitter-plantuml.wasm' });
+
+const source = `@startuml
 start
 :Task;
 stop
 @enduml`;
 
-    const result = parser.parse(source);
-    console.log('AST:', result.tree.rootNode.toString());
-    console.log('Normalized:', result.normalized);
-  </script>
-</body>
-</html>
+const result = parser.parse(source);
+console.log('AST:', result.tree.rootNode.toString());
+console.log('Normalized:', result.normalized);
 ```
 
 ### Installation for Browser Projects
@@ -276,7 +441,7 @@ export default {
 If you only need normalization without full parsing (e.g., for preprocessing), you can use the normalizer standalone:
 
 ```javascript
-import { PlantUMLNormalizer } from 'tree-sitter-plantuml/normalizer';
+import PlantUMLNormalizer from 'tree-sitter-plantuml/normalizer';
 
 const normalizer = new PlantUMLNormalizer({
   preserveComments: true,
@@ -323,25 +488,19 @@ const parser = await createParser({
 });
 ```
 
-#### PlantUMLParserWeb
+#### PlantUMLParserWasm
 
 Manual initialization (for more control):
 
 ```javascript
-import { PlantUMLParserWeb } from 'tree-sitter-plantuml/wasm';
+import { PlantUMLParserWasm } from 'tree-sitter-plantuml/wasm';
 
-const parser = new PlantUMLParserWeb(options);
-await parser.init('/path/to/tree-sitter-plantuml.wasm');
+const parser = await PlantUMLParserWasm.create({
+  wasmPath: '/path/to/tree-sitter-plantuml.wasm'
+});
 
 const result = parser.parse(source);
 ```
-
-**Methods:**
-- `async init(wasmPath)` - Initialize with WASM (must call before parsing)
-- `parse(source, options)` - Parse PlantUML (returns `{ tree, normalized, metadata }`)
-- `normalize(source)` - Normalize only (no WASM needed)
-- `parseNormalized(source)` - Parse already-normalized PlantUML
-- `isInitialized()` - Check if WASM is loaded
 
 ### Important Notes
 
@@ -363,20 +522,24 @@ const result = parser.parse(source);
    - web-tree-sitter runtime: ~100KB
 
 5. **Node.js vs Browser**:
-   - Node.js: Use `require('tree-sitter-plantuml')` (native, faster)
-   - Browser: Use `import ... from 'tree-sitter-plantuml/wasm'` (WASM)
+   - Node.js: Use `require('tree-sitter-plantuml')` or `import` from `'tree-sitter-plantuml'` (native binding, faster - supports both CommonJS and ESM)
+   - Browser: Use `import` from `'tree-sitter-plantuml/wasm'` (WebAssembly)
 
 ### TypeScript Support
 
 Full TypeScript definitions are included:
 
 ```typescript
-import { createParser, PlantUMLParserWeb, PlantUMLNormalizer } from 'tree-sitter-plantuml/wasm';
-import type { ParseResult, NormalizationResult, PlantUMLParserOptions } from 'tree-sitter-plantuml/wasm';
+import { createParser, PlantUMLParserWasm, PlantUMLNormalizer } from 'tree-sitter-plantuml/wasm';
+import type { ParseResult, NormalizationResult, ParserInitOptions } from 'tree-sitter-plantuml/wasm';
 
-const parser = await createParser({
-  wasmPath: '/tree-sitter-plantuml.wasm',
+const options: ParserInitOptions = {
   debug: true
+};
+
+const parser: PlantUMLParserWasm = await createParser({
+  wasmPath: '/tree-sitter-plantuml.wasm',
+  ...options
 });
 
 const result: ParseResult = parser.parse(source);
@@ -430,7 +593,7 @@ npm run validate
 
 1. Edit `grammar.js`
 2. Regenerate parser: `npm run generate`
-3. Rebuild bindings: `npm run build`
+3. Rebuild (native + wasm + JS): `npm run build:all`
 4. Run tests: `npm test`
 
 ### Add Tests
@@ -463,12 +626,14 @@ See [specification/testing-guide.md](./specification/testing-guide.md) for testi
 ```
 PlantUML-Parser/
 ├── grammar.js                  # Grammar definition
-├── index.js                    # Main entry point (PlantUMLParser)
+├── dist/                       # Built JS/TS outputs (CJS + ESM + types)
+│   ├── index.cjs/.mjs/.d.ts     # Node-native default entry
+│   ├── wasm.cjs/.mjs/.d.ts      # Browser/WASM entry (`tree-sitter-plantuml/wasm`)
+│   └── normalizer.cjs/.mjs/.d.ts# Normalizer-only entry (`tree-sitter-plantuml/normalizer`)
 ├── src/
+│   ├── core/                   # Runtime-agnostic orchestrator + shared types
 │   ├── normalizer/             # Normalizer (Pass 1)
-│   │   ├── index.js            # Core normalizer
-│   │   ├── rules/              # Transformation rules
-│   │   └── utils.js            # Helper functions
+│   ├── runtimes/               # Node-native + WASM backends
 │   ├── parser.c                # Generated parser (Pass 2)
 │   └── node-types.json         # Generated node types
 ├── test/
@@ -476,7 +641,8 @@ PlantUML-Parser/
 │   ├── normalizer/             # Normalizer unit tests
 │   ├── integration/            # Full pipeline tests
 │   └── fixtures/               # Test PlantUML files
-├── bindings/node/              # Node.js native bindings
+├── bindings/node/              # Node addon source (node-gyp)
+├── prebuilds/                  # Prebuilt native binaries (optional)
 ├── specification/              # Complete documentation
 ├── examples/                   # Example PlantUML files
 └── docker-compose.yml          # PlantUML server setup
@@ -567,6 +733,6 @@ MIT
 
 ---
 
-**Version**: 2.0.0
+**Version**: 2.1.0
 **Status**: Phase 1 Complete - Activity Diagrams
-**Last Updated**: 2025-11-15
+**Last Updated**: 2025-12-27

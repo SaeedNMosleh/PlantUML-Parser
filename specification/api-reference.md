@@ -58,7 +58,6 @@ parser.parse(source, options?)
 - `source` (string): PlantUML source code
 - `options` (Object, optional):
   - `skipNormalization` (boolean): Skip normalization for this parse. Overrides constructor option.
-  - `normalizerOptions` (Object): Override normalizer options for this parse
   - `oldTree` (Tree): Previous parse tree for incremental parsing
 
 **Returns:** Object
@@ -162,9 +161,11 @@ console.log(result.normalized);
 
 console.log(result.metadata);
 // {
-//   rules_applied: ['arrow_consolidation', 'whitespace_normalization'],
-//   original_length: 30,
-//   normalized_length: 27
+//   diagramType: 'activity',
+//   nodeCount: 0,
+//   hasCircleNodes: false,
+//   circleNodeCount: 0,
+//   sourceMap: { normalizedLineToOriginalLine: [/* ... */] }
 // }
 ```
 
@@ -306,9 +307,11 @@ normalizer.normalize(source)
 ```
 
 **Metadata Fields:**
-- `rules_applied` (string[]): List of transformation rules applied
-- `original_length` (number): Original source length in characters
-- `normalized_length` (number): Normalized source length
+- `diagramType` (string | null): Detected diagram type (best-effort)
+- `nodeCount` (number): Count of certain normalized nodes (best-effort)
+- `hasCircleNodes` (boolean): Whether `(*)` appeared in the diagram
+- `circleNodeCount` (number): Number of `(*)` occurrences
+- `sourceMap` (object): Mapping from normalized lines back to original lines
 
 **Example:**
 ```javascript
@@ -325,9 +328,11 @@ console.log(normalized);
 
 console.log(metadata);
 // {
-//   rules_applied: ['arrow_consolidation', 'whitespace_normalization'],
-//   original_length: 45,
-//   normalized_length: 40
+//   diagramType: 'activity',
+//   nodeCount: 0,
+//   hasCircleNodes: false,
+//   circleNodeCount: 0,
+//   sourceMap: { normalizedLineToOriginalLine: [/* ... */] }
 // }
 ```
 
@@ -440,8 +445,8 @@ console.log(normalized);
 // endif
 // @enduml
 
-console.log('Rules applied:', metadata.rules_applied);
-// ['arrow_consolidation', 'whitespace_normalization', 'decision_normalization']
+console.log('Diagram type:', metadata.diagramType);
+console.log('Source map:', metadata.sourceMap);
 ```
 
 ---
@@ -499,18 +504,16 @@ console.log('Activity nodes:', activities);
 
 ---
 
-### Custom Normalizer Options
+### Custom Parser Options
 
 ```javascript
-const parser = new PlantUMLParser();
-
-// Override normalizer options per-parse
-const result = parser.parse(source, {
-  normalizerOptions: {
-    preserveComments: false,  // Strip comments
-    preserveWhitespace: true   // Keep whitespace
-  }
+// Configure normalization behavior at construction time
+const parser = new PlantUMLParser({
+  preserveComments: false,
+  preserveWhitespace: true
 });
+
+const result = parser.parse(source);
 ```
 
 ---
@@ -589,14 +592,26 @@ Options for parsing.
 ```typescript
 interface ParseOptions {
   skipNormalization?: boolean;
-  normalizerOptions?: NormalizerOptions;
   oldTree?: Tree;
+}
+```
+
+### ParserInitOptions
+
+Options for the parser constructor (`new PlantUMLParser(options)`).
+
+```typescript
+interface ParserInitOptions {
+  debug?: boolean;
+  preserveComments?: boolean;
+  preserveWhitespace?: boolean;
+  skipNormalization?: boolean;
 }
 ```
 
 ### NormalizerOptions
 
-Options for normalizer.
+Options for the normalizer constructor (`new PlantUMLNormalizer(options)`).
 
 ```typescript
 interface NormalizerOptions {
@@ -614,9 +629,13 @@ Result of normalization.
 interface NormalizationResult {
   normalized: string;
   metadata: {
-    rules_applied: string[];
-    original_length: number;
-    normalized_length: number;
+    diagramType?: string | null;
+    nodeCount?: number;
+    hasCircleNodes?: boolean;
+    circleNodeCount?: number;
+    sourceMap?: {
+      normalizedLineToOriginalLine: number[];
+    };
   };
 }
 ```
@@ -630,9 +649,13 @@ interface ParseResult {
   tree: Tree;
   normalized?: string;     // Only if normalization enabled
   metadata?: {             // Only if normalization enabled
-    rules_applied: string[];
-    original_length: number;
-    normalized_length: number;
+    diagramType?: string | null;
+    nodeCount?: number;
+    hasCircleNodes?: boolean;
+    circleNodeCount?: number;
+    sourceMap?: {
+      normalizedLineToOriginalLine: number[];
+    };
   };
 }
 ```
@@ -685,5 +708,5 @@ interface ParseResult {
 
 ---
 
-**Version**: 2.0.0
-**Last Updated**: 2025-11-15
+**Version**: 2.1.0
+**Last Updated**: 2025-12-27

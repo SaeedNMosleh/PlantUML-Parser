@@ -2,7 +2,7 @@
  * Arrow normalization tests
  */
 
-const PlantUMLNormalizer = require('../../src/normalizer');
+const { default: PlantUMLNormalizer } = require('../../dist/normalizer.cjs');
 
 describe('Arrow Normalization', () => {
   let normalizer;

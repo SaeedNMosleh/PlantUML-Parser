@@ -786,5 +786,5 @@ Each diagram type will have modular, self-contained rules.
 **Test Corpus**: `test/corpus/activity/`
 
 **Status**: Phase 1 Complete ✅
-**Version**: 2.0.0
-**Last Updated**: 2025-11-15
+**Version**: 2.1.0
+**Last Updated**: 2025-12-27

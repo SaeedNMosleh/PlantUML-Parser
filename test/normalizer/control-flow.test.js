@@ -2,7 +2,7 @@
  * Control flow normalization tests
  */
 
-const PlantUMLNormalizer = require('../../src/normalizer');
+const { default: PlantUMLNormalizer } = require('../../dist/normalizer.cjs');
 
 describe('Control Flow Normalization', () => {
   let normalizer;

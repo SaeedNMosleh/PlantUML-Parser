@@ -109,10 +109,10 @@ Complete technical specification for the tree-sitter-plantuml parser implementin
 
 ## Version Information
 
-- **Current Version**: 2.0.0
+- **Current Version**: 2.1.0
 - **Architecture**: Two-Pass (Normalizer + Grammar)
 - **Status**: Phase 1 Complete
-- **Last Updated**: 2025-11-15
+- **Last Updated**: 2025-12-27
 
 ---
 

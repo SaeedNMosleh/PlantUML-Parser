@@ -1,4 +1,4 @@
-const PlantUMLNormalizer = require('./src/normalizer');
+const PlantUMLNormalizer = require('../../dist/normalizer.cjs');
 
 const normalizer = new PlantUMLNormalizer({ debug: false });
 

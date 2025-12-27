@@ -43,15 +43,28 @@ Error: tree-sitter is not recognized as an internal or external command
 
 **Solution:**
 ```bash
-# Install tree-sitter CLI globally
-npm install -g tree-sitter-cli
+# The repo uses the tree-sitter CLI for `generate`, `parse`, WASM builds, and corpus tests.
+# It is an optional dependency so installs can succeed even if the binary download fails.
+
+# Option A (recommended): use the repo-local install
+npm install
 
 # Verify installation
 tree-sitter --version
 
+# If `tree-sitter` is still not found, install globally
+npm install -g tree-sitter-cli
+
 # Generate parser
 npm run generate
 ```
+
+**If install fails with network/proxy errors (e.g. ECONNRESET):**
+- Configure `HTTP_PROXY` / `HTTPS_PROXY` for Node/npm (common in corporate networks), then retry `npm install`.
+- For JS-only work (like the normalizer), you can bypass install scripts:
+  - `npm ci --ignore-scripts`
+  - `npm run build:js`
+  - `npm run test:normalizer`
 
 ---
 
@@ -73,7 +86,7 @@ npm run generate
 # - src/node-types.json
 
 # Then build
-npm run build
+npm run build:all
 ```
 
 ---
@@ -115,13 +128,7 @@ TypeError: Invalid language object
 
 **Solution:**
 ```bash
-# This is a known issue with Node.js bindings
-# Use the fast mock parser for tests instead
-
-# Edit test files to use index-fast.js:
-const PlantUMLParser = require('../../index-fast');
-
-# Run tests
+# Ensure native build + dist exist and run integration tests
 npm run test:integration
 ```
 
@@ -147,7 +154,7 @@ npm run validate
 
 # Debug normalizer output:
 node -e "
-const N = require('./src/normalizer');
+const N = require('./dist/normalizer.cjs');
 const n = new N();
 console.log(n.normalize(\`YOUR TEST INPUT\`));
 "
@@ -198,11 +205,11 @@ Expected normalized output doesn't match actual
 **Solution:**
 ```bash
 # 1. Check normalizer rules
-cat src/normalizer/rules/arrows.js
+cat src/normalizer/rules/arrows.ts
 
 # 2. Debug specific normalization
 node -e "
-const PlantUMLNormalizer = require('./src/normalizer');
+const PlantUMLNormalizer = require('./dist/normalizer.cjs');
 const normalizer = new PlantUMLNormalizer({ debug: true });
 const result = normalizer.normalize(\`YOUR INPUT\`);
 console.log('Normalized:', result.normalized);
@@ -263,7 +270,7 @@ console.log(tree.rootNode.hasError);  // true
 ```bash
 # 1. Find ERROR nodes
 node -e "
-const PlantUMLParser = require('./index-fast');
+const PlantUMLParser = require('tree-sitter-plantuml');
 const parser = new PlantUMLParser();
 const { tree } = parser.parse(\`YOUR INPUT\`);
 
@@ -301,15 +308,10 @@ Integration tests take >100 seconds
 
 **Solution:**
 ```bash
-# Use fast mock parser for testing
-# Edit test files:
-const PlantUMLParser = require('../../index-fast');
-
-# This uses mock AST instead of real parsing
-# Tests run in <3 seconds
-
-# For production, use real parser:
-const PlantUMLParser = require('tree-sitter-plantuml');
+# Prefer the focused test suites when iterating:
+npm run test:normalizer     # Fast feedback on normalization
+npm run test:parser         # Grammar corpus tests
+npm run test:integration    # End-to-end pipeline
 ```
 
 ---
@@ -524,7 +526,7 @@ const path = require('path');
 const modulePath = path.join(__dirname, 'src', 'normalizer');
 
 // Or use forward slashes (work on Windows too)
-const PlantUMLParser = require('./src/normalizer');
+const PlantUMLNormalizer = require('./dist/normalizer.cjs');
 ```
 
 ---
@@ -595,11 +597,11 @@ const { tree } = parser.parseNormalized(normalized);
 ### 2. Using wrong test parser
 
 ```javascript
-// ❌ Wrong - slow workaround parser
-const PlantUMLParser = require('./index-workaround');
+// ❌ Wrong - importing internal source files instead of the published entrypoint
+// (example) require('./src/index.ts')
 
-// ✅ Correct - fast mock parser for tests
-const PlantUMLParser = require('./index-fast');
+// ✅ Correct - import the published entrypoint / built outputs
+const PlantUMLParser = require('tree-sitter-plantuml');
 ```
 
 ### 3. Not checking for null
@@ -633,5 +635,5 @@ for (let child of children) {
 
 ---
 
-**Version**: 2.0.0
-**Last Updated**: 2025-11-15
+**Version**: 2.1.0
+**Last Updated**: 2025-12-27

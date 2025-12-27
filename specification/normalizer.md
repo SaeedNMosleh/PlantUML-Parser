@@ -250,7 +250,7 @@ const result = normalizer.normalize(source);
 ### Basic Usage
 
 ```javascript
-const PlantUMLNormalizer = require('./src/normalizer');
+const PlantUMLNormalizer = require('tree-sitter-plantuml/normalizer');
 
 const normalizer = new PlantUMLNormalizer();
 
@@ -271,7 +271,7 @@ console.log(result.normalized);
 // @enduml
 
 console.log(result.metadata);
-// { diagramType: 'activity', nodeCount: 4, hasCircleNodes: true, circleNodeCount: 2 }
+// { diagramType: 'activity', nodeCount: 3, hasCircleNodes: true, circleNodeCount: 2 }
 ```
 
 ### With Options
