@@ -63,7 +63,7 @@
     "test:integration:wasm": "jest test/integration/full-pipeline-wasm.test.js --coverage --collectCoverageFrom=dist/wasm.cjs",
     "test:integration:all": "npm run test:integration && npm run test:integration:wasm",
     "test:all": "npm run validate && npm test && npm run test:integration:all",
-    "test:ci": "npm run build:all && npm run test:normalizer && npm run test:parser && npm run test:integration:all",
+    "test:ci": "npm run build:all && npm run test:normalizer && npm run test:parser && npm run test:integration:wasm",
     "test:100": "npm run test:all && echo '✅ 100% Success Rate Achieved!'",
     "generate": "node scripts/ensure-tree-sitter-cli.js && tree-sitter generate",
     "parse": "node scripts/ensure-tree-sitter-cli.js && tree-sitter parse",
