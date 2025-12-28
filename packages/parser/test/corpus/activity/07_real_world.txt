@@ -23,7 +23,7 @@ endif
 (source_file
   (diagram
     (startuml_directive)
-    (activity_element
+    (directive_statement
       (title_directive
         content: (text_content)))
     (activity_element

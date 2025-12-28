@@ -87,6 +87,22 @@ stop
       expect(result.normalized).toContain('fork again');
       expect(result.normalized).toContain('end fork');
     });
+
+    test('does not rewrite sequence diagram syntax', () => {
+      const input = `@startuml
+participant Alice
+participant Bob
+Alice -> Bob: Hello
+Bob --> Alice: Hi
+@enduml`;
+
+      const result = normalizer.normalize(input);
+
+      expect(result.metadata.diagramType).toBe('sequence');
+      // No arrow canonicalization should be applied for sequence diagrams.
+      expect(result.normalized).toContain('Alice -> Bob: Hello');
+      expect(result.normalized).toContain('Bob --> Alice: Hi');
+    });
   });
 
   describe('Edge Cases and Error Handling', () => {

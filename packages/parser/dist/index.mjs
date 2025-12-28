@@ -131,6 +131,9 @@ var PlantUMLNormalizer = class {
     if (trimmed.startsWith("'") || trimmed.startsWith("/'") || trimmed.startsWith("'/")) {
       return this.preserveComments ? line : null;
     }
+    if (this.diagramType === "sequence") {
+      return line;
+    }
     let normalized = line;
     const circleResult = this.normalizeCircleNode(normalized, trimmed);
     if (circleResult !== normalized) return circleResult;

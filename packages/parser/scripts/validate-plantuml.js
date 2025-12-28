@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const zlib = require('zlib');
 
 // PlantUML server configuration
@@ -133,14 +134,17 @@ async function validatePlantUML(code) {
       const url = `${PLANTUML_SERVER}/txt/${encoded}`;
       const urlObj = new URL(url);
 
+      const client = urlObj.protocol === 'https:' ? https : http;
+      const defaultPort = urlObj.protocol === 'https:' ? 443 : 80;
+
       const options = {
         hostname: urlObj.hostname,
-        port: urlObj.port || 8080,
+        port: urlObj.port || defaultPort,
         path: urlObj.pathname,
         method: 'GET',
       };
 
-      const req = http.request(options, (res) => {
+      const req = client.request(options, (res) => {
         let data = '';
 
         res.on('data', (chunk) => {
@@ -174,15 +178,17 @@ async function waitForServer(maxAttempts = 30) {
     try {
       const response = await new Promise((resolve, reject) => {
         const urlObj = new URL(PLANTUML_SERVER);
+        const client = urlObj.protocol === 'https:' ? https : http;
+        const defaultPort = urlObj.protocol === 'https:' ? 443 : 80;
         const options = {
           hostname: urlObj.hostname,
-          port: urlObj.port || 8080,
+          port: urlObj.port || defaultPort,
           path: '/',
           method: 'GET',
           timeout: 2000,
         };
 
-        const req = http.request(options, (res) => {
+        const req = client.request(options, (res) => {
           resolve({ statusCode: res.statusCode });
         });
 

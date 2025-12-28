@@ -11,7 +11,7 @@ stop
 (source_file
   (diagram
     (startuml_directive)
-    (activity_element
+    (directive_statement
       (title_directive
         content: (text_content)))
     (activity_element
@@ -35,7 +35,7 @@ skinparam backgroundColor LightYellow
 (source_file
   (diagram
     (startuml_directive)
-    (activity_element
+    (directive_statement
       (skinparam_directive
         parameter: (identifier)
         value: (text_content)))

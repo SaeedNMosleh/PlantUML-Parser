@@ -15,6 +15,13 @@ describe('Full Pipeline Integration', () => {
     parser = new PlantUMLParser();
   });
 
+  function rootHasError(tree) {
+    const root = tree.rootNode;
+    // tree-sitter (node) exposes `hasError()` as a method.
+    // Some runtimes expose it as a boolean property.
+    return typeof root.hasError === 'function' ? root.hasError() : root.hasError;
+  }
+
   describe('Simple Diagrams', () => {
     test('parses simple activity diagram with (*) nodes', () => {
       const input = `@startuml
@@ -36,7 +43,7 @@ describe('Full Pipeline Integration', () => {
 
       // Verify tree was created
       expect(result.tree.rootNode.type).toBe('source_file');
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
     });
 
     test('parses activity diagram with explicit start/stop', () => {
@@ -49,7 +56,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.metadata.diagramType).toBe('activity');
       expect(result.metadata.nodeCount).toBeGreaterThan(0);
     });
@@ -69,7 +76,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.normalized).toContain('if (Ready?) then (yes)');
       expect(result.normalized).toContain('else (no)');
       expect(result.normalized).toContain('endif');
@@ -86,7 +93,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.normalized).toContain('while (More data?) is (yes)');
       expect(result.normalized).toContain('endwhile (done)');
     });
@@ -102,7 +109,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.normalized).toContain('repeat');
       expect(result.normalized).toContain('repeat while');
     });
@@ -126,7 +133,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.metadata.diagramType).toBe('activity');
     });
 
@@ -145,7 +152,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.normalized).toContain('partition "Phase 1" #LightBlue {');
       expect(result.normalized).toContain('partition "Phase 2" {');
     });
@@ -163,7 +170,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.normalized).toContain('->');
       expect(result.normalized).toContain('-->');
     });
@@ -182,7 +189,7 @@ stop
 
       const result = parser.parse(input);
 
-      expect(result.tree.rootNode.hasError).toBe(false);
+      expect(rootHasError(result.tree)).toBe(false);
       expect(result.normalized).toContain('fork');
       expect(result.normalized).toContain('fork again');
       expect(result.normalized).toContain('end fork');

@@ -1,0 +1,58 @@
+===========================
+Preprocessor: include + macros
+===========================
+@startuml
+!define API_BASE https://example.test
+!ifdef API_BASE
+!include <C4/C4_Context.puml>
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4.puml
+!else
+!include "local_fallback.puml"
+!endif
+
+participant A
+participant B
+A -> B: Uses includes and macros
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (preproc_directive
+      (define_directive
+        name: (identifier)
+        value: (rest_of_line)))
+    (preproc_directive
+      (ifdef_directive
+        name: (identifier)))
+    (preproc_directive
+      (include_directive
+        target: (include_target
+          (angle_string))))
+    (preproc_directive
+      (includeurl_directive
+        target: (include_target
+          (path_token))))
+    (preproc_directive
+      (else_directive))
+    (preproc_directive
+      (include_directive
+        target: (include_target
+          (string))))
+    (preproc_directive
+      (endif_directive))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (enduml_directive)))

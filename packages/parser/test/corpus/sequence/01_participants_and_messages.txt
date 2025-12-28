@@ -1,0 +1,119 @@
+===========================
+Participants and basic messages
+===========================
+@startuml
+participant "User" as U
+actor Admin
+boundary "API Gateway" as API #LightBlue
+control Service <<svc>>
+entity DB
+
+U -> API: Login request
+API -> Service: Authenticate
+Service --> DB: Query user
+DB --> Service: Result
+Service --> API: Token
+API --> U: Login response
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (string)
+        alias: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (string)
+        alias: (identifier)
+        color: (color)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)
+        stereotype: (stereotype)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (enduml_directive)))
+
+===========================
+Messages with activation modifiers
+===========================
+@startuml
+participant A
+participant B
+A -> B ++: Start work
+B --> A --: Done
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        activation: (message_activation)
+        label: (message_label)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        activation: (message_activation)
+        label: (message_label)))
+    (enduml_directive)))

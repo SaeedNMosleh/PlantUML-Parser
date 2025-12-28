@@ -1,0 +1,149 @@
+===========================
+Sequence notes
+===========================
+@startuml
+participant Alice
+participant Bob
+
+note left of Alice: Initiates the flow
+Alice -> Bob: Hello
+note over Alice,Bob
+This is a multi-line note
+spanning both participants
+end note
+Bob --> Alice: Hi
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (sequence_note
+        (sequence_note_placement
+          (participant_ref_list
+            (identifier)))
+        content: (text_content)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (sequence_note
+        (sequence_note_placement
+          (participant_ref_list
+            (identifier)
+            (identifier)))
+        (note_line)
+        (note_line)
+        ))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (enduml_directive)))
+
+===========================
+Alt/else fragment
+===========================
+@startuml
+participant A
+participant B
+A -> B: Request
+alt Success
+  B --> A: 200 OK
+else Failure
+  B --> A: 500 Error
+end
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (message_statement
+        from: (identifier)
+        arrow: (message_arrow)
+        to: (identifier)
+        label: (message_label)))
+    (sequence_element
+      (fragment_block
+        kind: (fragment_kind)
+        label: (rest_of_line)
+        (sequence_element
+          (message_statement
+            from: (identifier)
+            arrow: (message_arrow)
+            to: (identifier)
+            label: (message_label)))
+        (fragment_else_branch
+          label: (rest_of_line)
+          (sequence_element
+            (message_statement
+              from: (identifier)
+              arrow: (message_arrow)
+              to: (identifier)
+              label: (message_label))))))
+    (enduml_directive)))
+
+===========================
+Box and ref blocks
+===========================
+@startuml
+participant Client
+participant Service
+
+box "Internal" #LightGreen
+  Client -> Service: Call
+end box
+
+ref over Client,Service: External dependency
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (participant_declaration
+        kind: (participant_keyword)
+        name: (identifier)))
+    (sequence_element
+      (box_block
+        title: (string)
+        color: (color)
+        (sequence_element
+          (message_statement
+            from: (identifier)
+            arrow: (message_arrow)
+            to: (identifier)
+            label: (message_label)))))
+    (sequence_element
+      (ref_block
+        (participant_ref_list
+          (identifier)
+          (identifier))
+        content: (text_content)))
+    (enduml_directive)))

@@ -103,6 +103,13 @@ export default class PlantUMLNormalizer {
       return this.preserveComments ? line : null;
     }
 
+    // Diagram-type aware normalization:
+    // - Activity diagrams: apply the full normalization pipeline (Pass 1).
+    // - Sequence (and others): prefer grammar-first parsing; avoid rewriting syntax.
+    if (this.diagramType === 'sequence') {
+      return line;
+    }
+
     let normalized = line;
 
     const circleResult = this.normalizeCircleNode(normalized, trimmed);
