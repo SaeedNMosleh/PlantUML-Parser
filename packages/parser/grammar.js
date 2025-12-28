@@ -54,7 +54,10 @@ module.exports = grammar({
     ),
 
     startuml_directive: $ => /@startuml(?:[ \t]+[^\n]*)?/,
-    enduml_directive: $ => /@enduml/,
+    // Include the trailing line ending when present.
+    // `tree-sitter test` corpus extraction can leave a dangling '\r' at the end of
+    // input blocks on CRLF files, which would otherwise surface as an EOF error.
+    enduml_directive: $ => /@enduml[ \t]*(?:\r?\n|\r)?/,
 
     // ============= STATEMENTS =============
 

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "plantuml",
   "word": "identifier",
   "rules": {
@@ -52,7 +53,7 @@
     },
     "enduml_directive": {
       "type": "PATTERN",
-      "value": "@enduml"
+      "value": "@enduml[ \\t]*(?:\\r?\\n|\\r)?"
     },
     "_statement": {
       "type": "CHOICE",
@@ -2226,6 +2227,6 @@
   "precedences": [],
   "externals": [],
   "inline": [],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }
-

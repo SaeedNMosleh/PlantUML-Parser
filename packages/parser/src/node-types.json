@@ -1291,6 +1291,7 @@
   {
     "type": "source_file",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -1318,16 +1319,6 @@
   },
   {
     "type": "split_node",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "start_node",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "stop_node",
     "named": true,
     "fields": {}
   },
@@ -1597,7 +1588,8 @@
   },
   {
     "type": "block_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "bottom",
@@ -1713,7 +1705,8 @@
   },
   {
     "type": "line_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "loop",
@@ -1792,8 +1785,8 @@
     "named": false
   },
   {
-    "type": "start",
-    "named": false
+    "type": "start_node",
+    "named": true
   },
   {
     "type": "startuml_directive",
@@ -1804,8 +1797,8 @@
     "named": true
   },
   {
-    "type": "stop",
-    "named": false
+    "type": "stop_node",
+    "named": true
   },
   {
     "type": "swimlane_name",
