@@ -178,6 +178,163 @@ This document outlines the development plan for the tree-sitter-plantuml parser,
 
 ---
 
+## LSP & Tooling Milestones
+
+### Phase 7: Monorepo Restructure (Planned - Week 17)
+
+**Repository Organization** - ⏳ In Progress
+
+- ⏳ Create monorepo structure with `packages/` directory
+- ⏳ Move parser to `packages/parser/`
+- ⏳ Setup workspace configuration (pnpm workspaces)
+- ⏳ Create placeholder `packages/lsp/` structure
+- ⏳ Create placeholder `packages/vscode-plantuml/` structure
+- ⏳ Update documentation for monorepo architecture
+- ⏳ Test that all 136 tests still pass after restructure
+
+**Installation Improvements** - ⏳ In Progress
+
+- ⏳ Make WASM the default export (zero build tools required)
+- ⏳ Setup prebuild CI/CD for native binaries
+- ⏳ Move `tree-sitter-cli` to devDependencies
+- ⏳ Create postinstall script with helpful messages
+- ⏳ Update README with installation scenarios
+- ⏳ Test installation on Windows, macOS, Linux
+
+**Target**: Parser package stays at ~329KB, zero-friction installation
+
+See [installation-improvements.md](./installation-improvements.md) and [monorepo-architecture.md](./monorepo-architecture.md).
+
+---
+
+### Phase 8: LSP Server (Planned - Weeks 18-21)
+
+**Core LSP Implementation** - ⬜ Not Yet Implemented
+
+- ⬜ LSP server initialization (stdio, socket, IPC transports)
+- ⬜ Document synchronization protocol
+- ⬜ Incremental document caching
+- ⬜ Configuration management
+- ⬜ Workspace folder support
+
+**Language Features** - ⬜ Not Yet Implemented
+
+- ⬜ **Diagnostics** (Linter)
+  - ⬜ Syntax error detection
+  - ⬜ Semantic linting (empty labels, unreachable code)
+  - ⬜ PlantUML best practices warnings
+  - ⬜ Tree-sitter query-based lint rules
+- ⬜ **Completion** (Auto-complete)
+  - ⬜ Keyword completion (`start`, `stop`, `if`, `while`, etc.)
+  - ⬜ Symbol completion (partition names, swimlanes)
+  - ⬜ Snippet completion (common patterns)
+  - ⬜ Context-aware suggestions
+- ⬜ **Hover** (Symbol Information)
+  - ⬜ Element documentation
+  - ⬜ Type information
+  - ⬜ Quick reference
+- ⬜ **Definition** (Go to Definition)
+  - ⬜ Jump to partition/swimlane definitions
+  - ⬜ Jump to activity node definitions
+  - ⬜ Cross-file references (imports)
+- ⬜ **Formatting** (Code Formatter)
+  - ⬜ Indent normalization
+  - ⬜ Consistent arrow formatting
+  - ⬜ Comment preservation
+  - ⬜ User-configurable style
+- ⬜ **Symbols** (Outline / Breadcrumbs)
+  - ⬜ Document symbol provider
+  - ⬜ Workspace symbol provider
+  - ⬜ Hierarchical outline
+
+**Performance Targets:**
+
+- ⬜ Initial parse (10,000 lines): <100ms
+- ⬜ Incremental edit: <5ms
+- ⬜ Diagnostics: <20ms
+- ⬜ Completion: <10ms
+- ⬜ Formatting: <30ms
+
+**Testing:**
+
+- ⬜ 50+ LSP protocol tests
+- ⬜ Feature provider tests
+- ⬜ Integration tests with real editors
+
+**Package**: `@plantuml/lsp` (~629KB including parser dependency)
+
+See [packages.md](./packages.md#package-2-plantuml-lsp-language-server).
+
+---
+
+### Phase 9: VSCode Extension (Planned - Weeks 22-24)
+
+**Extension Core** - ⬜ Not Yet Implemented
+
+- ⬜ Extension activation
+- ⬜ LSP client setup
+- ⬜ Language configuration (brackets, comments)
+- ⬜ Status bar integration
+
+**Features** - ⬜ Not Yet Implemented
+
+- ⬜ Syntax highlighting (tree-sitter queries)
+- ⬜ Real-time diagnostics
+- ⬜ Auto-completion
+- ⬜ Hover information
+- ⬜ Go to definition
+- ⬜ Format document
+- ⬜ Outline view / breadcrumbs
+
+**Configuration** - ⬜ Not Yet Implemented
+
+- ⬜ Enable/disable LSP features
+- ⬜ Diagnostics settings
+- ⬜ Formatter options
+- ⬜ Performance settings
+
+**Future Enhancements** - 🔄 Planned for Later
+
+- 🔄 Diagram preview (live rendering)
+- 🔄 Export to PNG/SVG
+- 🔄 Snippet library
+- 🔄 Code actions (quick fixes)
+- 🔄 Refactoring support
+
+**Package**: `vscode-plantuml` (~2MB, VSCode Marketplace)
+
+See [packages.md](./packages.md#package-3-vscode-plantuml-vscode-extension).
+
+---
+
+### Phase 10: CLI Tools (Planned - Weeks 25-26)
+
+**Command-Line Interface** - 🔄 Future
+
+- 🔄 `plantuml-lint` - Standalone linter
+- 🔄 `plantuml-format` - Standalone formatter
+- 🔄 `plantuml-parse` - AST output tool
+- 🔄 CI/CD integration examples
+- 🔄 Pre-commit hook templates
+
+**Package**: `@plantuml/cli` (future package)
+
+---
+
+### Phase 11: Transpiler (Planned - Post v1.0)
+
+**Code Generation** - 🔄 Future
+
+- 🔄 PlantUML → Python classes
+- 🔄 PlantUML → TypeScript interfaces
+- 🔄 AST → Custom formats
+- 🔄 Preserve comments in output
+- 🔄 Source map generation
+
+**Package**: `@plantuml/transpiler` (future package)
+
+---
+
 ## Additional Diagram Types (Future)
 
 These diagram types may be added after the core implementation:
@@ -299,6 +456,8 @@ These diagram types may be added after the core implementation:
 
 ## Timeline
 
+### Diagram Types
+
 | Phase | Duration | Diagram Types | Status |
 |-------|----------|---------------|--------|
 | Phase 1 | Weeks 1-2 | Activity | ✅ Complete |
@@ -307,6 +466,16 @@ These diagram types may be added after the core implementation:
 | Phase 4 | Weeks 7-8 | State | ⏳ Planned |
 | Phase 5 | Weeks 9-12 | Component, Deployment, Use Case | ⏳ Planned |
 | Phase 6 | Weeks 13-16 | Quality, Documentation, Release | ⏳ Planned |
+
+### LSP & Tooling
+
+| Phase | Duration | Focus | Status |
+|-------|----------|-------|--------|
+| Phase 7 | Week 17 | Monorepo Restructure + Installation Fixes | ⏳ In Progress |
+| Phase 8 | Weeks 18-21 | LSP Server (diagnostics, completion, hover, etc.) | ⏳ Planned |
+| Phase 9 | Weeks 22-24 | VSCode Extension | ⏳ Planned |
+| Phase 10 | Weeks 25-26 | CLI Tools (linter, formatter) | ⏳ Planned |
+| Phase 11 | Post v1.0 | Transpiler (PlantUML → Python/TypeScript) | 🔄 Future |
 
 ---
 

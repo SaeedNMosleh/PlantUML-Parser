@@ -624,13 +624,110 @@ See [ROADMAP.md](./ROADMAP.md) for detailed phase plan.
 
 ---
 
+## Repository Organization
+
+### Monorepo Structure
+
+The project is organized as a **monorepo with multiple packages** to serve different user needs:
+
+```text
+tree-sitter-plantuml/                    (monorepo root)
+├── packages/
+│   ├── parser/                          (tree-sitter-plantuml on npm)
+│   │   ├── Core parser: grammar, normalizer, bindings
+│   │   ├── Size: ~329KB
+│   │   └── Users: Library consumers, browser apps
+│   │
+│   ├── lsp/                             (@plantuml/lsp on npm)
+│   │   ├── LSP server + incremental caching
+│   │   ├── Size: ~629KB (includes parser)
+│   │   └── Users: VSCode extension, other editors
+│   │
+│   └── vscode-plantuml/                 (VSCode Marketplace)
+│       ├── VSCode extension + LSP client
+│       └── Users: VSCode users only
+│
+└── specification/                       (Shared documentation)
+```
+
+**Why Monorepo?**
+
+1. **Keep parser minimal** - Library users get 329KB, not 629KB with LSP code
+2. **Atomic commits** - Update parser + LSP + extension together
+3. **Easy code sharing** - TypeScript path mapping between packages
+4. **Single CI/CD** - One pipeline tests all packages
+5. **Independent versioning** - Parser stable (v2.1), LSP experimental (v0.1)
+
+**Package Dependency Graph:**
+
+```text
+tree-sitter-plantuml (parser - 329KB)
+    ↓ consumed by
+@plantuml/lsp (LSP server - 629KB)
+    ↓ consumed by
+vscode-plantuml (extension - 2MB)
+```
+
+See [monorepo-architecture.md](./monorepo-architecture.md) for detailed repository organization strategy.
+
+### Incremental Caching (LSP Package)
+
+For LSP servers handling large files, incremental parsing is critical. The caching logic resides in the **@plantuml/lsp package**, not the parser core:
+
+```typescript
+// packages/lsp/src/cache.ts
+export class PlantUMLDocumentCache {
+  private cache = new Map<string, { tree: Tree, version: number }>();
+
+  getOrParse(uri: string, source: string, version: number): Tree {
+    const cached = this.cache.get(uri);
+
+    // Incremental parse using oldTree (tree-sitter feature)
+    if (cached && cached.version < version) {
+      const { tree } = parser.parse(source, {
+        oldTree: cached.tree  // Reuses unchanged nodes
+      });
+      return tree;
+    }
+
+    // Full parse for new documents
+    const { tree } = parser.parse(source);
+    return tree;
+  }
+}
+```
+
+**Performance with Incremental Parsing:**
+
+- Initial parse (10,000 lines): ~100ms
+- Incremental edit: <5ms (20x faster)
+- LSP response time: <5ms (real-time)
+
+See [packages.md](./packages.md) for complete package specifications.
+
+---
+
 ## Related Documentation
+
+### Architecture & Design
+
+- **[Parser Technology Comparison](./parser-technology-comparison.md)** - Why tree-sitter vs ANTLR vs Peggy
+- **[Monorepo Architecture](./monorepo-architecture.md)** - Repository organization strategy
+- **[Packages Specification](./packages.md)** - Detailed specs for parser, LSP, and extension packages
+
+### Implementation Details
 
 - **[Normalizer Specification](./normalizer.md)** - Detailed normalization rules and API
 - **[Grammar Specification](./grammar.md)** - Complete grammar definition
 - **[API Reference](./api-reference.md)** - PlantUMLParser and Normalizer API
 - **[Testing Guide](./testing-guide.md)** - Test structure and corpus format
 - **[Integration Guide](./integration-guide.md)** - Using the parser in your application
+
+### Operations
+
+- **[Installation Improvements](./installation-improvements.md)** - Plan for zero-friction installation
+- **[Troubleshooting Guide](./troubleshooting.md)** - Common issues and solutions
+- **[ROADMAP](./ROADMAP.md)** - Future diagram types and features
 
 ---
 

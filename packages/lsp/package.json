@@ -1,0 +1,34 @@
+{
+  "name": "@plantuml/lsp",
+  "version": "0.1.0",
+  "description": "Language Server Protocol implementation for PlantUML (Phase 8 - Planned)",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "private": true,
+  "keywords": [
+    "plantuml",
+    "lsp",
+    "language-server",
+    "language-server-protocol",
+    "tree-sitter"
+  ],
+  "author": "PlantUML Parser Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SaeedNMosleh/PlantUML-Parser",
+    "directory": "packages/lsp"
+  },
+  "scripts": {
+    "build": "echo 'LSP package not yet implemented (Phase 8)'",
+    "test": "echo 'LSP package not yet implemented (Phase 8)'"
+  },
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "vscode-languageserver": "^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

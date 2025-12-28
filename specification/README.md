@@ -10,13 +10,21 @@ Complete technical specification for the tree-sitter-plantuml parser implementin
 - **[Grammar](./grammar.md)** - Pass 2: Grammar specification for activity diagrams
 - **[API Reference](./api-reference.md)** - Complete PlantUMLParser and Normalizer API
 
+### Architecture Decisions
+
+- **[Parser Technology Comparison](./parser-technology-comparison.md)** - Why tree-sitter over ANTLR and Peggy
+- **[Monorepo Architecture](./monorepo-architecture.md)** - Repository organization strategy
+- **[Packages](./packages.md)** - Package specifications (parser, LSP, VSCode)
+- **[Installation Improvements](./installation-improvements.md)** - Zero-friction installation plan
+
 ### Development Guides
 - **[Contributing](./CONTRIBUTING.md)** - Development principles and guidelines
 - **[Testing Guide](./testing-guide.md)** - Testing strategy and corpus test format
 - **[Troubleshooting](./troubleshooting.md)** - Common issues and solutions
 
 ### Planning & Integration
-- **[Roadmap](./ROADMAP.md)** - Future diagram types (Phases 2-6)
+
+- **[Roadmap](./ROADMAP.md)** - Future diagram types and LSP tooling (Phases 2-11)
 - **[Integration Guide](./integration-guide.md)** - npm package, VSCode, LSP integration
 - **[Migration Guide](./migration-v1-to-v2.md)** - Upgrading from v1.x to v2.0
 
@@ -45,13 +53,20 @@ Complete technical specification for the tree-sitter-plantuml parser implementin
 ## Current Status
 
 **Phase 1: Activity Diagrams** ✅ **Complete**
+
 - **Test Success**: 100% (136/136 tests passing)
 - **PlantUML Validation**: 100% (30/30 tests)
 - **Grammar Tests**: 100% (30/30 tests)
 - **Normalizer Tests**: 100% (59/59 tests)
 - **Integration Tests**: 100% (17/17 tests)
 
-**Next**: Phase 2 - Sequence Diagrams (planned)
+**Phase 7: Monorepo Restructure** ⏳ **In Progress**
+
+- **Documentation**: ✅ Complete (4 strategic decision documents)
+- **Repository Structure**: 🔄 Planned (moving to packages/ layout)
+- **Installation Improvements**: 🔄 Planned (WASM default, prebuilt binaries)
+
+**Next**: Complete Phase 7, then Phase 2 - Sequence Diagrams
 
 ## Key Design Principles
 
@@ -70,6 +85,13 @@ Complete technical specification for the tree-sitter-plantuml parser implementin
 - [Normalizer](./normalizer.md)
 - [Grammar](./grammar.md)
 
+**Strategic Decisions:**
+
+- [Parser Technology Comparison](./parser-technology-comparison.md)
+- [Monorepo Architecture](./monorepo-architecture.md)
+- [Packages](./packages.md)
+- [Installation Improvements](./installation-improvements.md)
+
 **Usage & API:**
 - [API Reference](./api-reference.md)
 - [Integration Guide](./integration-guide.md)
@@ -86,20 +108,32 @@ Complete technical specification for the tree-sitter-plantuml parser implementin
 ### By Audience
 
 **For Users:**
+
 - Start with [API Reference](./api-reference.md)
 - Then [Integration Guide](./integration-guide.md)
 - Check [Troubleshooting](./troubleshooting.md) if issues arise
+- See [Installation Improvements](./installation-improvements.md) for installation help
 
 **For Contributors:**
+
 - Start with [Contributing](./CONTRIBUTING.md)
 - Read [Architecture](./architecture.md)
+- Review strategic decisions: [Parser Technology](./parser-technology-comparison.md), [Monorepo](./monorepo-architecture.md), [Packages](./packages.md)
 - Follow [Testing Guide](./testing-guide.md)
 - Check [Roadmap](./ROADMAP.md) for next features
 
 **For Migrators:**
+
 - Read [Migration Guide](./migration-v1-to-v2.md)
 - Check [API Reference](./api-reference.md) for new API
 - Review [Architecture](./architecture.md) for design changes
+
+**For Architects:**
+
+- Understand the technology choice: [Parser Technology Comparison](./parser-technology-comparison.md)
+- Repository structure: [Monorepo Architecture](./monorepo-architecture.md)
+- Package design: [Packages](./packages.md)
+- Future roadmap: [Roadmap](./ROADMAP.md) (Phases 7-11 for LSP & tooling)
 
 ## Getting Help
 

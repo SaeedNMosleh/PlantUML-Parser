@@ -2,6 +2,16 @@
 
 A high-performance [tree-sitter](https://tree-sitter.github.io/) parser for PlantUML using a **two-pass architecture** (Normalizer + Grammar) to handle PlantUML's ambiguous syntax.
 
+## Monorepo Structure
+
+This repository contains multiple packages for PlantUML tooling:
+
+- **[packages/parser/](./packages/parser/)** - Core PlantUML parser (tree-sitter based) - ✅ **Phase 1 Complete**
+- **[packages/lsp/](./packages/lsp/)** - Language Server Protocol implementation - 🔄 **Phase 8 Planned**
+- **[packages/vscode-plantuml/](./packages/vscode-plantuml/)** - VSCode extension - 🔄 **Phase 9 Planned**
+
+See [specification/monorepo-architecture.md](./specification/monorepo-architecture.md) for architecture details.
+
 ## At a Glance
 
 ```bash
@@ -624,28 +634,33 @@ See [specification/testing-guide.md](./specification/testing-guide.md) for testi
 ## Project Structure
 
 ```
-PlantUML-Parser/
-├── grammar.js                  # Grammar definition
-├── dist/                       # Built JS/TS outputs (CJS + ESM + types)
-│   ├── index.cjs/.mjs/.d.ts     # Node-native default entry
-│   ├── wasm.cjs/.mjs/.d.ts      # Browser/WASM entry (`tree-sitter-plantuml/wasm`)
-│   └── normalizer.cjs/.mjs/.d.ts# Normalizer-only entry (`tree-sitter-plantuml/normalizer`)
-├── src/
-│   ├── core/                   # Runtime-agnostic orchestrator + shared types
-│   ├── normalizer/             # Normalizer (Pass 1)
-│   ├── runtimes/               # Node-native + WASM backends
-│   ├── parser.c                # Generated parser (Pass 2)
-│   └── node-types.json         # Generated node types
-├── test/
-│   ├── corpus/activity/        # Grammar corpus tests
-│   ├── normalizer/             # Normalizer unit tests
-│   ├── integration/            # Full pipeline tests
-│   └── fixtures/               # Test PlantUML files
-├── bindings/node/              # Node addon source (node-gyp)
-├── prebuilds/                  # Prebuilt native binaries (optional)
-├── specification/              # Complete documentation
-├── examples/                   # Example PlantUML files
-└── docker-compose.yml          # PlantUML server setup
+PlantUML-Parser/                  # Monorepo root
+├── packages/
+│   ├── parser/                   # Core parser package (tree-sitter-plantuml)
+│   │   ├── grammar.js            # Grammar definition
+│   │   ├── dist/                 # Built JS/TS outputs (CJS + ESM + types)
+│   │   │   ├── wasm.cjs/.mjs/.d.ts      # WASM entry (default)
+│   │   │   ├── index.cjs/.mjs/.d.ts     # Node-native entry (`/native`)
+│   │   │   └── normalizer.cjs/.mjs/.d.ts# Normalizer-only (`/normalizer`)
+│   │   ├── src/
+│   │   │   ├── core/             # Runtime-agnostic orchestrator
+│   │   │   ├── normalizer/       # Normalizer (Pass 1)
+│   │   │   ├── runtimes/         # Node-native + WASM backends
+│   │   │   ├── parser.c          # Generated parser (Pass 2)
+│   │   │   └── node-types.json   # Generated node types
+│   │   ├── test/                 # All parser tests
+│   │   ├── bindings/node/        # Node addon source
+│   │   ├── prebuilds/            # Prebuilt native binaries
+│   │   └── package.json          # Parser package metadata
+│   ├── lsp/                      # LSP server (Phase 8 - Planned)
+│   │   └── package.json          # @plantuml/lsp
+│   └── vscode-plantuml/          # VSCode extension (Phase 9 - Planned)
+│       └── package.json          # vscode-plantuml
+├── specification/                # Complete documentation
+├── package.json                  # Workspace root
+├── pnpm-workspace.yaml           # pnpm workspace config
+├── tsconfig.base.json            # Shared TypeScript config
+└── jest.config.base.js           # Shared Jest config
 ```
 
 ## Documentation
@@ -662,11 +677,20 @@ PlantUML-Parser/
 ## Roadmap
 
 ### ✅ Phase 1: Activity Diagrams (Complete)
+
 - All activity diagram features supported
 - 100% test success rate
 - PlantUML validation passing
 
-### ⏳ Phase 2: Sequence Diagrams (Planned)
+### ⏳ Phase 7: Monorepo Restructure (In Progress)
+
+- Monorepo structure with 3 packages
+- WASM-first installation (zero build tools)
+- Prebuilt binaries via CI/CD
+- See [ROADMAP.md](./specification/ROADMAP.md#phase-7-monorepo-restructure-planned---week-17)
+
+### 🔄 Phase 2: Sequence Diagrams (Planned)
+
 - Participants, messages, activation boxes
 - Message groups (alt, opt, loop, etc.)
 - Estimated: 4-6 weeks

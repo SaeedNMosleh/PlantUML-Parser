@@ -1,0 +1,56 @@
+{
+  "name": "vscode-plantuml",
+  "displayName": "PlantUML Language Support",
+  "description": "PlantUML language support with LSP features (Phase 9 - Planned)",
+  "version": "0.1.0",
+  "publisher": "plantuml-parser-team",
+  "private": true,
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "plantuml",
+    "uml",
+    "diagram",
+    "language-server",
+    "tree-sitter"
+  ],
+  "activationEvents": [
+    "onLanguage:plantuml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "plantuml",
+        "aliases": ["PlantUML", "plantuml"],
+        "extensions": [".puml", ".plantuml", ".pu", ".uml"],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "echo 'VSCode extension not yet implemented (Phase 9)'",
+    "test": "echo 'VSCode extension not yet implemented (Phase 9)'",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SaeedNMosleh/PlantUML-Parser",
+    "directory": "packages/vscode-plantuml"
+  },
+  "license": "MIT"
+}
