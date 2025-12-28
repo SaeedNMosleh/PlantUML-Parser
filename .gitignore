@@ -53,6 +53,10 @@ test/integration/.output/
 *.bak
 *.tmp
 
+# Personal / local proxy setup
+PROXY-SETUP.md
+setup-npm-proxy.bat
+
 # Local scratch PlantUML files
 packages/parser/_tmp*.puml
 packages/parser/tmp_*.puml
