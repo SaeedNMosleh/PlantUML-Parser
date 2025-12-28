@@ -7,71 +7,34 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  validate-plantuml:
-    name: Validate PlantUML Test Cases
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-
-      - name: Start PlantUML Server
-        run: |
-          docker run -d -p 8080:8080 --name plantuml plantuml/plantuml-server:latest
-          echo "PlantUML server started on port 8080"
-
-      - name: Validate PlantUML test corpus
-        run: |
-          chmod +x scripts/validate-plantuml.js
-          node scripts/validate-plantuml.js
-
-      - name: Stop PlantUML Server
-        if: always()
-        run: docker stop plantuml || true
-
   test:
-    name: Test Parser
+    name: Parser CI
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Install tree-sitter CLI
-        run: npm install tree-sitter-cli --save-dev
+      - name: Start PlantUML server (docker compose)
+        run: docker compose -f docker-compose.yml up -d
 
-      - name: Generate parser
-        run: npx tree-sitter generate
+      - name: Validate PlantUML test corpus (server-render)
+        env:
+          PLANTUML_SERVER: http://localhost:8080
+        run: npm -w packages/parser run validate
 
-      - name: Build native bindings
-        run: npm run build
+      - name: Run parser tests (jest + corpus + integration)
+        run: npm -w packages/parser run test:ci
 
-      - name: Run all corpus tests
-        run: npx tree-sitter test
-
-      - name: Test parsing example file
-        run: |
-          echo "Testing parser on a simple example..."
-          cat > /tmp/test.puml << 'EOF'
-          @startuml
-          start
-          :Hello World;
-          stop
-          @enduml
-          EOF
-          npx tree-sitter parse /tmp/test.puml
-          echo "✅ Parser test successful!"
+      - name: Stop PlantUML server
+        if: always()
+        run: docker compose -f docker-compose.yml down

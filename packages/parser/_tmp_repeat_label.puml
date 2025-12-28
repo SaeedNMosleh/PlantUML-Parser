@@ -1,5 +1,0 @@
-@startuml
-repeat
-  :Read;
-repeat while (more?) is (yes)
-@enduml

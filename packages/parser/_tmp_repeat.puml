@@ -1,5 +1,0 @@
-@startuml
-repeat
-  :Task;
-repeat while (Again?)
-@enduml
