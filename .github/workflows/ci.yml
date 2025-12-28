@@ -27,6 +27,9 @@ jobs:
       - name: Ensure tree-sitter CLI is available
         run: npm -w packages/parser run setup:tree-sitter
 
+      - name: Rebuild WASM to ensure freshness
+        run: npm -w packages/parser run build:wasm:force
+
       - name: Start PlantUML server (docker compose)
         run: docker compose -f docker-compose.yml up -d
 
@@ -36,6 +39,8 @@ jobs:
         run: npm -w packages/parser run validate
 
       - name: Run parser tests (jest + corpus + integration)
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npm -w packages/parser run test:ci
 
       - name: Stop PlantUML server

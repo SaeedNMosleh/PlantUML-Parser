@@ -18,8 +18,25 @@ function run(command, args) {
 }
 
 function main() {
-  // If the WASM already exists (e.g. checked in or built earlier), do nothing.
-  if (fs.existsSync(wasmPath)) return;
+  const forceRebuild = process.env.FORCE_WASM_BUILD === '1';
+  const grammarPath = path.join(projectRoot, 'grammar.js');
+
+  // Check if rebuild is needed
+  if (!forceRebuild && fs.existsSync(wasmPath)) {
+    // Compare mtimes: only rebuild if grammar is newer than WASM
+    const grammarMtime = fs.statSync(grammarPath).mtime.getTime();
+    const wasmMtime = fs.statSync(wasmPath).mtime.getTime();
+
+    if (wasmMtime >= grammarMtime) {
+      console.log('WASM is up to date, skipping rebuild');
+      return;
+    }
+    console.log('Grammar changed, rebuilding WASM...');
+  } else if (forceRebuild) {
+    console.log('FORCE_WASM_BUILD set, rebuilding WASM...');
+  } else {
+    console.log('WASM not found, building...');
+  }
 
   // Ensure `tree-sitter` CLI exists before attempting build-wasm.
   run(process.execPath, [path.join(projectRoot, 'scripts', 'ensure-tree-sitter-cli.js')]);
@@ -31,6 +48,8 @@ function main() {
     console.error('Expected tree-sitter-plantuml.wasm to be generated, but it was not found.');
     process.exit(1);
   }
+
+  console.log('WASM build complete');
 }
 
 main();
