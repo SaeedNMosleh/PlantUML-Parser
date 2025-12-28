@@ -111,3 +111,44 @@ endwhile
           (activity_node
             label: (activity_label)))))
     (enduml_directive)))
+
+===========================
+Repeat loop
+===========================
+@startuml
+repeat
+  :Task;
+repeat while (Again?)
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (repeat_loop
+        (activity_element
+          (activity_node
+            label: (activity_label)))
+        condition: (condition)))
+    (enduml_directive)))
+
+===========================
+Repeat loop with label
+===========================
+@startuml
+repeat
+  :Read;
+repeat while (more?) is (yes)
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (repeat_loop
+        (activity_element
+          (activity_node
+            label: (activity_label)))
+        condition: (condition)
+        label: (branch_label)))
+    (enduml_directive)))

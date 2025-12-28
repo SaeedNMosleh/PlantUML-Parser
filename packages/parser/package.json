@@ -48,6 +48,7 @@
     "url": "https://github.com/SaeedNMosleh/PlantUML-Parser"
   },
   "scripts": {
+    "setup:tree-sitter": "node scripts/ensure-tree-sitter-cli.js",
     "build:js": "tsup",
     "build:native": "node-gyp rebuild",
     "build:wasm": "node scripts/build-wasm.js",
@@ -86,7 +87,6 @@
     }
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.20.8",
     "@types/jest": "^29.5.0",
     "@types/node": "^22.0.0",
     "c8": "^9.0.0",
@@ -97,6 +97,9 @@
     "tsup": "^8.0.0",
     "typescript": "^5.6.3",
     "web-tree-sitter": "^0.22.6"
+  },
+  "optionalDependencies": {
+    "tree-sitter-cli": "^0.20.8"
   },
   "tree-sitter": [
     {

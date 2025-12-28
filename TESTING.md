@@ -3,14 +3,13 @@
 ## Quick Start
 
 ```bash
-# Navigate to parser package
-cd packages/parser
-
-# Install dependencies (first time only)
+# Install dependencies (workspace root)
+# NOTE: This repo uses npm workspaces. Even if you run `npm install` inside
+# `packages/parser`, npm will install into the workspace root `node_modules`.
 npm install
 
-# Run all tests
-npm test
+# Run all parser tests
+npm --workspace packages/parser test
 ```
 
 ## Test Commands
@@ -19,42 +18,42 @@ npm test
 
 ```bash
 # Normalizer tests (59 tests, ~5 seconds)
-npm run test:normalizer
+npm --workspace packages/parser run test:normalizer
 
 # Parser/Grammar tests (30 tests, ~10 seconds)
-npm run test:parser
+npm --workspace packages/parser run test:parser
 
 # Integration tests (17 tests, ~15 seconds)
-npm run test:integration
+npm --workspace packages/parser run test:integration
 ```
 
 ### Complete Test Suite
 
 ```bash
 # All tests + validation (136 tests)
-npm run test:all
+npm --workspace packages/parser run test:all
 
 # CI-compatible test run
-npm run test:ci
+npm --workspace packages/parser run test:ci
 
 # Verify 100% success rate
-npm run test:100
+npm --workspace packages/parser run test:100
 ```
 
 ## Build Commands
 
 ```bash
 # Build JavaScript/TypeScript output
-npm run build:js
+npm --workspace packages/parser run build:js
 
 # Build native bindings (requires C compiler)
-npm run build:native
+npm --workspace packages/parser run build:native
 
 # Build WASM binary
-npm run build:wasm
+npm --workspace packages/parser run build:wasm
 
 # Build everything
-npm run build:all
+npm --workspace packages/parser run build:all
 ```
 
 ## Development Workflow
@@ -62,16 +61,16 @@ npm run build:all
 ```bash
 # 1. Make changes to grammar or normalizer
 # 2. Regenerate parser if grammar changed
-npm run generate
+npm --workspace packages/parser run generate
 
 # 3. Build the changes
-npm run build:all
+npm --workspace packages/parser run build:all
 
 # 4. Run tests
-npm test
+npm --workspace packages/parser test
 
 # 5. Validate against PlantUML server (requires Docker)
-npm run validate
+npm --workspace packages/parser run validate
 ```
 
 ## Test Structure
@@ -102,8 +101,7 @@ Tests:       136 passed, 136 total
 ### "jest not found"
 
 ```bash
-# Make sure you're in the parser package
-cd packages/parser
+# Install dependencies at the workspace root
 npm install
 ```
 
@@ -112,17 +110,17 @@ npm install
 This is expected! `tree-sitter-cli` is now a devDependency. Use:
 
 ```bash
-npm run generate  # Uses npx to run tree-sitter
-npm run parse     # Uses npx to run tree-sitter
+npm --workspace packages/parser run generate
+npm --workspace packages/parser run parse
 ```
 
 ### Tests fail after restructuring
 
 ```bash
 # Clean and rebuild
-npm run clean
-npm run build:all
-npm test
+npm --workspace packages/parser run clean
+npm --workspace packages/parser run build:all
+npm --workspace packages/parser test
 ```
 
 ## Using pnpm Workspaces (Alternative)

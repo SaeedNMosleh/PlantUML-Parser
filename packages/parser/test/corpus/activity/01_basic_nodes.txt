@@ -138,3 +138,71 @@ stop
     (activity_element
       (stop_node))
     (enduml_directive)))
+
+===========================
+Dashed flow arrow with label
+===========================
+@startuml
+:A;
+-->:Go
+:B;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (activity_element
+      (flow_arrow
+        type: (arrow_type)
+        label: (arrow_label)))
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (enduml_directive)))
+
+===========================
+Kill terminator
+===========================
+@startuml
+:A;
+kill
+:B;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (activity_element
+      (kill))
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (enduml_directive)))
+
+===========================
+Detach terminator
+===========================
+@startuml
+:A;
+detach
+:B;
+@enduml
+----------------------------
+(source_file
+  (diagram
+    (startuml_directive)
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (activity_element
+      (detach))
+    (activity_element
+      (activity_node
+        label: (activity_label)))
+    (enduml_directive)))

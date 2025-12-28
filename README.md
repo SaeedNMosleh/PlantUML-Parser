@@ -63,14 +63,17 @@ console.log(result.tree.rootNode.toString());
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Install dependencies (monorepo)
+# NOTE: This repo uses npm workspaces. Running `npm install` inside a package
+# like `packages/parser` will still resolve the workspace root and install into
+# the root `node_modules`.
 npm install
 
-# Build the parser
-npm run build:all
+# Build the parser package
+npm --workspace packages/parser run build:all
 
-# Run all tests
-npm test
+# Run parser tests
+npm --workspace packages/parser test
 ```
 
 ```javascript
@@ -180,11 +183,11 @@ npm install tree-sitter-plantuml
 git clone https://github.com/SaeedNMosleh/PlantUML-Parser.git
 cd PlantUML-Parser
 
-# Install dependencies
+# Install dependencies (workspace root)
 npm install
 
 # Generate parser and build native bindings
-npm run build:all
+npm --workspace packages/parser run build:all
 ```
 
 ### Installation Troubleshooting

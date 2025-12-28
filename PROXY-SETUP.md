@@ -5,7 +5,6 @@
 Your npm is already configured correctly! Here's what's set:
 
 ```bash
-cafile = "C:\Users\najafi\Downloads\Zscaler Root CA.crt"
 https-proxy = "http://10.144.1.10:8080"
 proxy = "http://10.144.1.10:8080"
 registry = "https://registry.npmjs.org/"
@@ -35,15 +34,23 @@ This sets:
 
 **Then restart your terminal!**
 
+If you use VS Code, fully restart VS Code too so its integrated terminals inherit the new environment variables.
+
 ### Option 2: Per-Session Fix (Current Workaround)
 
 For immediate use without restarting:
 
 ```bash
-# Set for current session
+# Set for current session (CMD)
 set NODE_EXTRA_CA_CERTS=C:\Users\najafi\Downloads\Zscaler Root CA.crt
 set HTTPS_PROXY=http://10.144.1.10:8080
 set HTTP_PROXY=http://10.144.1.10:8080
+
+# Set for current session (PowerShell)
+$env:NODE_EXTRA_CA_CERTS = "C:\Users\najafi\Downloads\Zscaler Root CA.crt"
+$env:HTTPS_PROXY = "http://10.144.1.10:8080"
+$env:HTTP_PROXY = "http://10.144.1.10:8080"
+$env:NO_PROXY = "localhost,127.0.0.1"
 
 # Then run npm install
 npm install
@@ -61,11 +68,11 @@ npm install --strict-ssl=false
 
 ## What Works Now
 
-✅ **npm install** - Works with `--strict-ssl=false` flag
+✅ **npm install** - Works (no `--strict-ssl=false` needed)
 ✅ **npm registry access** - Works
 ✅ **Most packages** - Install successfully
 
-❌ **tree-sitter-cli** - Post-install script downloads from GitHub (blocked by Zscaler)
+⚠️ **tree-sitter-cli** - Downloads from GitHub (often blocked by Zscaler). The repo treats it as optional so installs can still succeed; grammar development commands may require a manual install.
 
 ## Solution for tree-sitter-cli
 
@@ -79,7 +86,10 @@ Manual installation (already done!):
 
 ```bash
 # Test npm registry connection
-npm ping
+npm ping --loglevel verbose
+
+# Best registry health check (often more reliable than ping behind proxies)
+npm view lodash version
 
 # Test package installation
 npm install lodash
@@ -108,13 +118,30 @@ HTTP_PROXY=http://10.144.1.10:8080
 Check current settings:
 
 ```bash
-# NPM config
-npm config list
+# NPM config (workspace-safe)
+npm --workspaces=false config get strict-ssl --location=user
+npm --workspaces=false config get https-proxy --location=user
+npm --workspaces=false config get proxy --location=user
+npm --workspaces=false config get registry --location=user
 
-# Environment variables
+# Environment variables (CMD)
 echo %NODE_EXTRA_CA_CERTS%
 echo %HTTPS_PROXY%
+
+# Environment variables (PowerShell)
+echo $env:NODE_EXTRA_CA_CERTS
+echo $env:HTTPS_PROXY
 ```
+
+### Important: Don't set `npm config cafile` to the Zscaler Root CA
+
+It can break TLS validation for public endpoints with:
+
+```text
+UNABLE_TO_GET_ISSUER_CERT_LOCALLY
+```
+
+Use `NODE_EXTRA_CA_CERTS` (and optionally `NODE_OPTIONS=--use-system-ca`) instead.
 
 ## Alternative: Use pnpm or yarn
 
@@ -127,11 +154,8 @@ pnpm install  # May handle certificates better
 
 ## Summary
 
-**Current Status:**
-- ✅ NPM configured correctly
-- ✅ Can install most packages with `--strict-ssl=false`
-- ✅ tree-sitter-cli works via manual installation
-- ✅ All 136 tests passing!
+**Current Status (Target):**
 
-**Recommendation:**
-Continue using `--strict-ssl=false` for npm installs, and manually download GitHub binaries when needed (like tree-sitter-cli).
+- ✅ npm registry access works with `strict-ssl=true`
+- ✅ Node-based postinstall scripts trust Zscaler via `NODE_EXTRA_CA_CERTS`
+- ✅ `npm ping` works (or at least fails fast with useful logs)

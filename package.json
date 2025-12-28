@@ -13,18 +13,19 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "lint": "pnpm -r lint",
-    "clean": "pnpm -r clean && rm -rf node_modules",
-    "prebuild": "pnpm -r prebuild"
+    "build": "npm -ws run build",
+    "test": "npm -ws run test",
+    "lint": "npm -ws run lint",
+    "clean": "npm -ws run clean --if-present && rimraf node_modules",
+    "prebuild": "npm -ws run prebuild --if-present"
   },
   "devDependencies": {
+    "rimraf": "^6.0.1",
     "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=10.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "npm@10.9.3"
 }

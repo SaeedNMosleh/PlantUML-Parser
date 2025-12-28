@@ -1,0 +1,6 @@
+@startuml
+note right
+  line 1
+  line 2
+end note
+@enduml
